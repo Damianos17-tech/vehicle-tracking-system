@@ -1,0 +1,96 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16
+    container_name: postgres_lab
+    environment:
+      POSTGRES_USER: damian
+      POSTGRES_PASSWORD: damian
+      POSTGRES_DB: vts
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./postgres/init:/docker-entrypoint-initdb.d
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.14.3
+    container_name: elasticsearch_lab
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.14.3
+    container_name: kibana_lab
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+      
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    restart: always
+    
+    
+  osrm:
+    image: osrm/osrm-backend
+    container_name: nifty_williams
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./osrm:/data
+    command: >
+      osrm-routed
+      --algorithm mld
+      /data/mazowieckie-260629.osrm
+      
+      
+  backend:
+    build:
+      context: ./backend
+    container_name: vehicletracking_backend
+    ports:
+      - "8090:8090"
+    environment:
+      TZ: Europe/Warsaw
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=Europe/Warsaw"
+      SERVER_PORT: 8090
+      OSRM_HOST: http://osrm:5000
+      OSRM_URL: http://osrm:5000/route/v1/driving/
+      DB_URL: jdbc:postgresql://db:5432/vts
+      DB_USERNAME: damian
+      DB_PASSWORD: damian
+      ELASTICSEARCH_URL: http://elasticsearch:9200
+    depends_on:
+      - db
+      - osrm
+      - elasticsearch
+      - frontend
+      
+  frontend:
+    build:
+      context: ./frontend
+    container_name: vehicletracking_frontend
+    ports:
+      - "8080:80"
+       
+
+volumes:
+  grafana_data:
+  postgres_data:
+  elasticsearch_data:
