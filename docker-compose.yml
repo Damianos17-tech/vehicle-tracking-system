@@ -71,7 +71,7 @@ services:
       JAVA_TOOL_OPTIONS: "-Duser.timezone=Europe/Warsaw"
       SERVER_PORT: 8090
       OSRM_HOST: http://osrm:5000
-      OSRM_URL: http://osrm:5000/route/v1/driving/
+      OSRM_URL: http://osrm:5000
       DB_URL: jdbc:postgresql://db:5432/vts
       DB_USERNAME: damian
       DB_PASSWORD: damian

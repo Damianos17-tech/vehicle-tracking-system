@@ -22,9 +22,12 @@ public class RouteService {
     public List<Position> generateRoute(Position start, Position end) {
 
         String url = osrmUrl +
+                "/route/v1/driving/" +
                 start.getLongitude() + "," + start.getLatitude() + ";" +
                 end.getLongitude() + "," + end.getLatitude() +
                 "?overview=full&geometries=geojson";
+
+        System.out.println("OSRM REQUEST = " + url);
 
         OsrmResponse response =
                 restTemplate.getForObject(url, OsrmResponse.class);
