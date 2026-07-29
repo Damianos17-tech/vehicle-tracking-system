@@ -1,5 +1,4 @@
 services:
-
   db:
     image: postgres:16
     container_name: postgres_lab
@@ -7,12 +6,12 @@ services:
       POSTGRES_USER: damian
       POSTGRES_PASSWORD: damian
       POSTGRES_DB: vts
+      TZ: Europe/Warsaw
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./postgres/init:/docker-entrypoint-initdb.d
-      - /etc/localtime:/etc/localtime:ro
 
 
   elasticsearch:
@@ -22,11 +21,11 @@ services:
       - discovery.type=single-node
       - xpack.security.enabled=false
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
+      - TZ=Europe/Warsaw
     ports:
       - "9200:9200"
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
-      - /etc/localtime:/etc/localtime:ro
 
 
   kibana:
@@ -34,10 +33,9 @@ services:
     container_name: kibana_lab
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - TZ=Europe/Warsaw
     ports:
       - "5601:5601"
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
     depends_on:
       - elasticsearch
 
@@ -45,22 +43,24 @@ services:
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
+    environment:
+      - TZ=Europe/Warsaw
     ports:
       - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
-      - /etc/localtime:/etc/localtime:ro
     restart: always
 
 
   osrm:
     image: osrm/osrm-backend
     container_name: nifty_williams
+    environment:
+      - TZ=Europe/Warsaw
     ports:
       - "5000:5000"
     volumes:
       - ./osrm:/data
-      - /etc/localtime:/etc/localtime:ro
     command: >
       osrm-routed
       --algorithm mld
@@ -75,6 +75,11 @@ services:
       - "8090:8090"
 
     environment:
+      TZ: Europe/Warsaw
+
+      # najważniejsze dla JVM !!!
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=Europe/Warsaw"
+
       SERVER_PORT: 8090
 
       OSRM_HOST: http://osrm:5000
@@ -86,9 +91,6 @@ services:
 
       ELASTICSEARCH_URL: http://elasticsearch:9200
 
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-
     depends_on:
       - db
       - osrm
@@ -99,12 +101,10 @@ services:
     build:
       context: ./frontend
     container_name: vehicletracking_frontend
+    environment:
+      - TZ=Europe/Warsaw
     ports:
       - "8080:80"
-
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-
 
 
 volumes:
