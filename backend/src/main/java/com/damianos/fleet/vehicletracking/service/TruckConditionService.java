@@ -138,7 +138,7 @@ public class TruckConditionService {
 
     //Prawdopodobieństwa awarii
     private boolean shouldHaveAccident(Truck truck) {
-        double probability = 0.00001; //0.0001
+        double probability = 0.00004; //0.0001
 
         if (truck.getSpeed() > 70) {
             probability += 0.000005; //0.0002
@@ -152,7 +152,7 @@ public class TruckConditionService {
     }
 
     private boolean shouldBreakDown(Truck truck) {
-        double probability = 0.00005;
+        double probability = 0.00007;
 
         if (truck.getTechnicalCondition() < 70) {
             probability += 0.00001;
