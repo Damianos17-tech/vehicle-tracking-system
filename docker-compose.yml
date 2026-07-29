@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+
   db:
     image: postgres:16
     container_name: postgres_lab
@@ -13,6 +14,9 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./postgres/init:/docker-entrypoint-initdb.d
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+
 
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.14.3
@@ -25,6 +29,8 @@ services:
       - "9200:9200"
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
 
 
   kibana:
@@ -34,9 +40,13 @@ services:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
     ports:
       - "5601:5601"
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     depends_on:
       - elasticsearch
-      
+
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -44,9 +54,11 @@ services:
       - "3000:3000"
     volumes:
       - grafana_data:/var/lib/grafana
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     restart: always
-    
-    
+
+
   osrm:
     image: osrm/osrm-backend
     container_name: nifty_williams
@@ -54,41 +66,57 @@ services:
       - "5000:5000"
     volumes:
       - ./osrm:/data
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
     command: >
       osrm-routed
       --algorithm mld
       /data/mazowieckie-260629.osrm
-      
-      
+
+
   backend:
     build:
       context: ./backend
     container_name: vehicletracking_backend
     ports:
       - "8090:8090"
+
     environment:
       TZ: Europe/Warsaw
       JAVA_TOOL_OPTIONS: "-Duser.timezone=Europe/Warsaw"
+
       SERVER_PORT: 8090
+
       OSRM_HOST: http://osrm:5000
       OSRM_URL: http://osrm:5000
+
       DB_URL: jdbc:postgresql://db:5432/vts
       DB_USERNAME: damian
       DB_PASSWORD: damian
+
       ELASTICSEARCH_URL: http://elasticsearch:9200
+
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+
     depends_on:
       - db
       - osrm
       - elasticsearch
-      - frontend
-      
+
+
   frontend:
     build:
       context: ./frontend
     container_name: vehicletracking_frontend
     ports:
       - "8080:80"
-       
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+
+
 
 volumes:
   grafana_data:
