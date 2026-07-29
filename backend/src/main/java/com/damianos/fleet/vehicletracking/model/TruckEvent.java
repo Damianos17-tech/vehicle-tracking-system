@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 import java.time.LocalDateTime;
@@ -20,7 +22,7 @@ public class TruckEvent {
     private String type;
     private String message;
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private LocalDateTime createdAt;
+    private Instant createdAt;
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     @Id
@@ -44,10 +46,15 @@ public class TruckEvent {
 
     @Override
     public String toString() {
-        return createdAt.format(FORMATTER) + " | " + type + " | " + message;
+        return type + " | "
+                + message
+                + ", "
+                + createdAt
+                .atZone(ZoneId.of("Europe/Warsaw"))
+                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
     }
 
-    public TruckEvent(String truckId, String type, String message, LocalDateTime createdAt) {
+    public TruckEvent(String truckId, String type, String message, Instant  createdAt) {
         this.truckId = truckId;
         this.type = type;
         this.message = message;

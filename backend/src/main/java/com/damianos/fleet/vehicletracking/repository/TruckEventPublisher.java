@@ -4,6 +4,7 @@ import com.damianos.fleet.vehicletracking.model.TruckEvent;
 import com.damianos.fleet.vehicletracking.service.ElasticSearchService;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,7 +25,7 @@ public class TruckEventPublisher {
 
     public void publish(Truck truck, String type, String message) {
 
-        TruckEvent event = new TruckEvent(truck.getId(), type, message, LocalDateTime.now());
+        TruckEvent event = new TruckEvent(truck.getId(), type, message, Instant.now());
 
 
         // dla frontendu
