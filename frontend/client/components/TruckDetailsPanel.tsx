@@ -164,9 +164,17 @@ export default function TruckDetailsPanel({ truck, onBack }: Props) {
                     {event.type}
                   </span>
 
-                  <span className="text-xs text-slate-400">
-                    {event.createdAt}
-                  </span>
+            <span className="text-xs text-slate-400">
+			  {new Date(event.createdAt).toLocaleString("pl-PL", {
+				timeZone: "Europe/Warsaw",
+				year: "numeric",
+				month: "2-digit",
+				day: "2-digit",
+				hour: "2-digit",
+				minute: "2-digit",
+				second: "2-digit",
+			  })}
+			</span>
                 </div>
 
                 <div className="text-xs text-slate-300 mt-1">

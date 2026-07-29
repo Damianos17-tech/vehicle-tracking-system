@@ -5,11 +5,11 @@ import com.damianos.fleet.vehicletracking.service.ElasticSearchService;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+
 import com.damianos.fleet.vehicletracking.model.Truck;
 
 @Service
@@ -18,6 +18,7 @@ public class TruckEventPublisher {
     private final Queue<TruckEvent> pendingDatabaseEvents = new ConcurrentLinkedQueue<>();
     private final ElasticSearchService elasticSearchService;
 
+
     public TruckEventPublisher(ElasticSearchService elasticSearchService) {
         this.elasticSearchService = elasticSearchService;
     }
@@ -25,18 +26,23 @@ public class TruckEventPublisher {
 
     public void publish(Truck truck, String type, String message) {
 
-        TruckEvent event = new TruckEvent(truck.getId(), type, message, Instant.now());
+        TruckEvent event = new TruckEvent(
+                truck.getId(),
+                type,
+                message,
+                Instant.now()
+        );
 
 
-        // dla frontendu
+        // frontend
         truck.addEvent(event);
 
 
-        // dla bazy
+        // baza danych
         pendingDatabaseEvents.add(event);
 
-        //dla elasticsearch
-        //elasticEventService.saveEvent(event);
+
+        // Elasticsearch
         elasticSearchService.saveEvent(event);
     }
 
@@ -54,15 +60,15 @@ public class TruckEventPublisher {
         return events;
     }
 
+
     public List<TruckEvent> peekEvents() {
 
         return new ArrayList<>(pendingDatabaseEvents);
     }
 
+
     public void removeEvents(List<TruckEvent> events) {
 
         pendingDatabaseEvents.removeAll(events);
     }
-
-
 }

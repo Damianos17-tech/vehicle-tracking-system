@@ -19,6 +19,8 @@ public class ElasticSearchService {
 
     public void saveEvent(TruckEvent event) {
 
+        System.out.println("ELASTIC SAVE TIME = " + event.getCreatedAt());
+
         try {
 
 
