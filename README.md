@@ -7,7 +7,11 @@ A full-stack real-time vehicle tracking platform designed to simulate and monito
 The project was developed to demonstrate practical skills in backend development, DevOps practices, containerization, monitoring, and system integration.
 
 ---
+<img width="1918" height="921" alt="map-view-1007" src="https://github.com/user-attachments/assets/051a08d8-aad5-4dd3-9ba2-1af38b19ddc1" />
 
+<img width="1598" height="965" alt="panel-view-1007" src="https://github.com/user-attachments/assets/9fbbdd6a-3047-4d9f-a0ac-4aa78ae78a0f" />
+
+---
 ## Architecture
 
 The application consists of several independent services running in Docker containers:
@@ -99,6 +103,13 @@ Implemented monitoring capabilities using:
 * Kibana log visualization
 
 The system architecture allows monitoring application performance, infrastructure status, and operational data.
+---
+
+
+<img width="1883" height="928" alt="Kibana_dashboard" src="https://github.com/user-attachments/assets/9502dc60-e553-44a4-8a60-651d7d5f5c9f" />
+
+
+
 
 ---
 
