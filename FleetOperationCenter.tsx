@@ -407,4 +407,3 @@ export default function FleetOperationCenter({ onViewSelect, activeView, trucks,
     </div>
   );
 }
-
