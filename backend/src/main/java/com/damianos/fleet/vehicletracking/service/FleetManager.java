@@ -113,7 +113,8 @@ public class FleetManager {
 
     public FleetStats getStats() {
 
-        List<Truck> trucks = repo.findAll();
+        //List<Truck> trucks = repo.findAll();
+        List<Truck> trucks = List.copyOf(repo.findAll());
 
         long broken = trucks.stream()
                 .filter(t -> t.getStatus() == TruckState.Status.FAILURE)

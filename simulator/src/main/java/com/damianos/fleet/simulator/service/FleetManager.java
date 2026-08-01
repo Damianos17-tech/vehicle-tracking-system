@@ -49,48 +49,126 @@ public class FleetManager {
     }
 
 
+
+
     @PostConstruct
     public void initFleet() {
 
+
         trucks.add(new Truck(
                 "TRUCK-001",
-                "MAN TGX",
+                "DAF XF 460 tandem",
                 90,
                 Status.ACTIVE
         ));
+
 
         trucks.add(new Truck(
                 "TRUCK-002",
-                "Volvo FH16",
-                90,
+                "DAF XF 530 plandeka",
+                83,
                 Status.ACTIVE
         ));
+
 
         trucks.add(new Truck(
-                "TRUCK-003",
-                "Scania R500",
-                90,
+                "TRUCK-004",
+                "Mercedes Actros 1851 cysterna",
+                80,
                 Status.ACTIVE
         ));
 
-        for(Truck truck : trucks){
-            //truck.setPosition(new Position());
-
-            Position start = truck.getPosition();
-            Position destination = new Position();
-            truck.setRoute(routeService.generateRoute(start, destination));
+        // itd...
 
 
-            System.out.println(
-                    truck.getId() +
-                            " route = " +
-                            truck.getRoute()
+        for (int i = 3; i <= 77; i++) {
+
+            trucks.add(
+                    new Truck(
+                            "TRUCK-" + i,
+                            "Truck " + i,
+                            90,
+                            Status.ACTIVE
+                    )
             );
         }
 
 
-        //generateNewRoute
+        trucks.forEach(truck -> {
 
-        System.out.println("Fleet initialized: " + trucks.size() + " trucks");
+            Position destination = new Position();
+
+            truck.setRoute(
+                    routeService.generateRoute(
+                            truck.getPosition(),
+                            destination
+                    )
+            );
+
+        });
+
+
+        System.out.println(
+                "Fleet initialized: "
+                        + trucks.size()
+                        + " trucks"
+        );
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+//    @PostConstruct
+//    public void initFleet() {
+//
+//        trucks.add(new Truck(
+//                "TRUCK-001",
+//                "MAN TGX",
+//                90,
+//                Status.ACTIVE
+//        ));
+//
+//        trucks.add(new Truck(
+//                "TRUCK-002",
+//                "Volvo FH16",
+//                90,
+//                Status.ACTIVE
+//        ));
+//
+//        trucks.add(new Truck(
+//                "TRUCK-003",
+//                "Scania R500",
+//                90,
+//                Status.ACTIVE
+//        ));
+//
+//        for(Truck truck : trucks){
+//            //truck.setPosition(new Position());
+//
+//            Position start = truck.getPosition();
+//            Position destination = new Position();
+//            truck.setRoute(routeService.generateRoute(start, destination));
+//
+//
+//            System.out.println(
+//                    truck.getId() +
+//                            " route = " +
+//                            truck.getRoute()
+//            );
+//        }
+//
+//
+//        //generateNewRoute
+//
+//        System.out.println("Fleet initialized: " + trucks.size() + " trucks");
+//    }
 }

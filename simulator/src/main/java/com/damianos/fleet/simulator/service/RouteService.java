@@ -17,7 +17,7 @@ public class RouteService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    @Value("${osrm.url}")
+    @Value("${OSRM.URL}")
     private String osrmUrl;
 
     public List<Position> generateRoute(Position start, Position end) {

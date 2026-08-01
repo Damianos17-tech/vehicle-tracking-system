@@ -23,8 +23,8 @@ public class TruckEventProducer {
 
 
     public TruckEventProducer(
-            KafkaTemplate<String, Truck> truckKafkaTemplate,
-            KafkaTemplate<String, TruckEvent> eventKafkaTemplate
+            KafkaTemplate<String, Truck> truckKafkaTemplate, KafkaTemplate<String, TruckEvent> eventKafkaTemplate
+
     ) {
         this.truckKafkaTemplate = truckKafkaTemplate;
         this.eventKafkaTemplate = eventKafkaTemplate;
@@ -33,11 +33,29 @@ public class TruckEventProducer {
 
     public void send(Truck truck) {
 
+        //System.out.println("KAFKA SEND TRUCK: " + truck.getId());
+
         truckKafkaTemplate.send(
                 TRUCK_TOPIC,
                 truck.getId(),
                 truck
-        );
+        ).whenComplete((result, exception) -> {
+
+            if (exception != null) {
+                System.out.println("❌ KAFKA ERROR");
+                exception.printStackTrace();
+                return;
+            }
+
+//            System.out.println(
+//                    "✅ KAFKA SUCCESS topic=" +
+//                            result.getRecordMetadata().topic() +
+//                            " partition=" +
+//                            result.getRecordMetadata().partition() +
+//                            " offset=" +
+//                            result.getRecordMetadata().offset()
+//            );
+        });
     }
 
 
@@ -50,10 +68,8 @@ public class TruckEventProducer {
                 Instant.now()
         );
 
-        eventKafkaTemplate.send(
-                EVENT_TOPIC,
-                truck.getId(),
-                event
-        );
+        //System.out.println("KAFKA SEND EVENT: " + event.toString());
+
+        eventKafkaTemplate.send(EVENT_TOPIC, truck.getId(), event);
     }
 }

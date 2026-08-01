@@ -18,7 +18,7 @@ import com.damianos.fleet.simulator.model.TruckState.Failure;
 import org.springframework.scheduling.config.Task;
 
 
-import org.springframework.scheduling.config.Task;
+
 
 
 
@@ -63,7 +63,7 @@ public class Truck {
     private long idleStopSeconds = 0;
     private double kmToService = 0;
 
-    private Task currentTask;
+    //private Task currentTask;
     private static final int MAX_EVENTS = 15;
     @Setter
     @Getter
@@ -275,7 +275,7 @@ public class Truck {
                 ", status=" + status +
                 ", speed=" + speed +
                 ", position=" + position +
-                ", route=" + route +
+
                 ", routeIndex=" + routeIndex +
                 ", lastUpdateTime=" + lastUpdateTime +
                 ", fuelLevel=" + fuelLevel +

@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-@Service
+//@Service
 public class TruckSimulator {
 
     private final TruckPositionPublisher publisher;

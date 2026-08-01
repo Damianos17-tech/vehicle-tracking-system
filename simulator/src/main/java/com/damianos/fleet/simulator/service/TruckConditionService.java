@@ -14,6 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import com.damianos.fleet.simulator.model.TruckState.Failure;
 import com.damianos.fleet.simulator.model.TruckState.Warning;
+import com.damianos.fleet.simulator.model.TruckState.*;
 
 //@NoArgsConstructor
 @AllArgsConstructor
@@ -98,6 +99,7 @@ public class TruckConditionService {
         truck.removeWarning(Warning.SERVICE_REQUIRED);
         truck.refreshStatus();
 
+        kafkaProducer.sendEvent(truck, "SERVICE", "Przegląd techniczny zakończony!");
     }
 
     public void repair(Truck truck) {
@@ -108,6 +110,7 @@ public class TruckConditionService {
         truck.getFailures().clear();
         truck.refreshStatus();
 
+        kafkaProducer.sendEvent(truck, "REPAIR", "Pojazd naprawiony pomyślnie");
     }
 
     public void repairAll(List<Truck> trucks) {
@@ -140,7 +143,7 @@ public class TruckConditionService {
 
     //Prawdopodobieństwa awarii
     private boolean shouldHaveAccident(Truck truck) {
-        double probability = 0.00004; //0.0001
+        double probability = 0.00008; //0.0001
 
         if (truck.getSpeed() > 70) {
             probability += 0.000005; //0.0002
@@ -154,7 +157,7 @@ public class TruckConditionService {
     }
 
     private boolean shouldBreakDown(Truck truck) {
-        double probability = 0.00007;
+        double probability = 0.00009;
 
         if (truck.getTechnicalCondition() < 70) {
             probability += 0.00001;

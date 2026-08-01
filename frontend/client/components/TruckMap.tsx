@@ -276,7 +276,7 @@ useEffect(() => {
 
     map.current.closePopup();
 
-    map.current.flyTo(marker.getLatLng(), 14, {duration: 1.0,});
+    map.current.flyTo(marker.getLatLng(), 13, {duration: 1.0,});
 	
 
     const timer = setTimeout(() => {
