@@ -1,4 +1,5 @@
 services:
+
   db:
     image: postgres:16
     container_name: postgres_lab
@@ -12,6 +13,32 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./postgres/init:/docker-entrypoint-initdb.d
+
+
+  kafka:
+    image: apache/kafka:latest
+    container_name: kafka_lab
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://192.168.1.130:9092
+
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+
+      TZ: Europe/Warsaw
+
+    ports:
+      - "9092:9092"
 
 
   elasticsearch:
@@ -71,43 +98,77 @@ services:
     build:
       context: ./backend
     container_name: vehicletracking_backend
+
     ports:
       - "8090:8090"
 
     environment:
+
       TZ: Europe/Warsaw
 
-      # najważniejsze dla JVM !!!
       JAVA_TOOL_OPTIONS: "-Duser.timezone=Europe/Warsaw"
 
       SERVER_PORT: 8090
 
+
       OSRM_HOST: http://osrm:5000
       OSRM_URL: http://osrm:5000
+
 
       DB_URL: jdbc:postgresql://db:5432/vts
       DB_USERNAME: damian
       DB_PASSWORD: damian
 
+
       ELASTICSEARCH_URL: http://elasticsearch:9200
+
+
+      # Kafka
+      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
 
     depends_on:
       - db
       - osrm
       - elasticsearch
+      - kafka
+
+
+
+#  simulator:
+#    build:
+#      context: ./simulator
+#    container_name: fleet_simulator
+#
+#    environment:
+#
+#      TZ: Europe/Warsaw
+#
+#      JAVA_TOOL_OPTIONS: "-Duser.timezone=Europe/Warsaw"
+#
+#      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+
+
+#    depends_on:
+#      - kafka
+
 
 
   frontend:
     build:
       context: ./frontend
     container_name: vehicletracking_frontend
+
     environment:
       - TZ=Europe/Warsaw
+
     ports:
       - "8080:80"
 
 
+
 volumes:
+
   grafana_data:
   postgres_data:
   elasticsearch_data:
