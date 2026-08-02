@@ -18,6 +18,7 @@ services:
   kafka:
     image: apache/kafka:latest
     container_name: kafka_lab
+
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
@@ -41,66 +42,87 @@ services:
       - "9092:9092"
 
 
+
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:8.14.3
     container_name: elasticsearch_lab
+
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
       - ES_JAVA_OPTS=-Xms512m -Xmx512m
       - TZ=Europe/Warsaw
+
     ports:
       - "9200:9200"
+
     volumes:
       - elasticsearch_data:/usr/share/elasticsearch/data
+
 
 
   kibana:
     image: docker.elastic.co/kibana/kibana:8.14.3
     container_name: kibana_lab
+
     environment:
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
       - TZ=Europe/Warsaw
+
     ports:
       - "5601:5601"
+
     depends_on:
       - elasticsearch
+
 
 
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
+
     environment:
       - TZ=Europe/Warsaw
+
     ports:
       - "3000:3000"
+
     volumes:
       - grafana_data:/var/lib/grafana
+
     restart: always
+
 
 
   osrm:
     image: osrm/osrm-backend
     container_name: nifty_williams
+
     environment:
       - TZ=Europe/Warsaw
+
     ports:
       - "5000:5000"
+
     volumes:
       - ./osrm:/data
+
     command: >
       osrm-routed
       --algorithm mld
       /data/mazowieckie-260629.osrm
 
 
+
   backend:
     build:
       context: ./backend
+
     container_name: vehicletracking_backend
 
     ports:
       - "8090:8090"
+
 
     environment:
 
@@ -123,8 +145,7 @@ services:
       ELASTICSEARCH_URL: http://elasticsearch:9200
 
 
-      # Kafka
-      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+      KAFKA_URL: kafka:9092
 
 
     depends_on:
@@ -135,32 +156,47 @@ services:
 
 
 
-#  simulator:
-#    build:
-#      context: ./simulator
-#    container_name: fleet_simulator
-#
-#    environment:
-#
-#      TZ: Europe/Warsaw
-#
-#      JAVA_TOOL_OPTIONS: "-Duser.timezone=Europe/Warsaw"
-#
-#      KAFKA_BOOTSTRAP_SERVERS: kafka:9092
+  simulator:
+    build:
+      context: ./simulator
+
+    container_name: simulator
 
 
-#    depends_on:
-#      - kafka
+    environment:
+
+      TZ: Europe/Warsaw
+
+      JAVA_TOOL_OPTIONS: "-Duser.timezone=Europe/Warsaw"
+
+
+      KAFKA_URL: kafka:9092
+
+      BACKEND_URL: http://backend:8090
+
+
+      SERVER_PORT: 8060
+
+
+    depends_on:
+
+      - kafka
+      - backend
+
 
 
 
   frontend:
     build:
       context: ./frontend
+
     container_name: vehicletracking_frontend
 
+
     environment:
+
       - TZ=Europe/Warsaw
+
 
     ports:
       - "8080:80"
@@ -170,5 +206,7 @@ services:
 volumes:
 
   grafana_data:
+
   postgres_data:
+
   elasticsearch_data:
