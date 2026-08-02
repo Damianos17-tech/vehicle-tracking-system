@@ -27,7 +27,7 @@ public class RouteService {
                 end.getLongitude() + "," + end.getLatitude() +
                 "?overview=full&geometries=geojson";
 
-        System.out.println("OSRM REQUEST = " + url);
+        //System.out.println("OSRM REQUEST = " + url);
 
         OsrmResponse response =
                 restTemplate.getForObject(url, OsrmResponse.class);

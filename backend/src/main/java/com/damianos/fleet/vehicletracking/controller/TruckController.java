@@ -1,9 +1,11 @@
 package com.damianos.fleet.vehicletracking.controller;
 
+import com.damianos.fleet.vehicletracking.config.FleetAllocationService;
 import com.damianos.fleet.vehicletracking.kafka.TruckCommandProducer;
 import com.damianos.fleet.vehicletracking.model.FleetStats;
 import com.damianos.fleet.vehicletracking.model.InfrastructureStats;
 import com.damianos.fleet.vehicletracking.model.Truck;
+import com.damianos.fleet.vehicletracking.repository.TruckRepository;
 import com.damianos.fleet.vehicletracking.service.FleetManager;
 import org.springframework.web.bind.annotation.*;
 
@@ -14,24 +16,29 @@ import java.util.List;
 @RequestMapping("/fleet")
 public class TruckController {
 
+    private final FleetAllocationService fleetAllocationService;
 
-    private final FleetManager fleetManager;
+   // private final FleetManager fleetManager;
     private final TruckCommandProducer commandProducer;
+
+    private final TruckRepository truckRepository;
 
 
     public TruckController(
-            FleetManager fleetManager,
-            TruckCommandProducer commandProducer
+            FleetAllocationService fleetAllocationService, FleetManager fleetManager,
+            TruckCommandProducer commandProducer, TruckRepository truckRepository
     ) {
-        this.fleetManager = fleetManager;
+        this.fleetAllocationService = fleetAllocationService;
+        //this.fleetManager = fleetManager;
         this.commandProducer = commandProducer;
+        this.truckRepository = truckRepository;
     }
 
 
 
     @GetMapping
     public List<Truck> getTrucks() {
-        return fleetManager.getTrucks();
+        return truckRepository.findAll();
     }
 
 
@@ -67,6 +74,8 @@ public class TruckController {
             @PathVariable String id
     ) {
 
+        System.out.println("REFUEL REQUEST FROM FRONTEND: " + id);
+
         commandProducer.sendCommand(
                 id,
                 "REFUEL"
@@ -77,8 +86,8 @@ public class TruckController {
     @PostMapping("/repair-all")
     public void repairAllTrucks() {
 
-        fleetManager
-                .getTrucks()
+        truckRepository
+                .findAll()
                 .stream()
                 .map(Truck::getId)
                 .toList()
@@ -94,16 +103,46 @@ public class TruckController {
 
     @GetMapping("/stats")
     public FleetStats getStats() {
-        return fleetManager.getStats();
-    }
 
+        FleetStats stats = truckRepository.getStats();
+
+        stats.setOnline(fleetAllocationService.getOnlineTruckCount());
+
+        return stats;
+    }
 
 
     @GetMapping("/truck/{id}")
     public Truck getTruck(
             @PathVariable String id
     ) {
-        return fleetManager.getTruck(id);
+        return truckRepository.findById(id);
+    }
+
+
+    @GetMapping("/register")
+    public List<Truck> registerSimulator(
+            @RequestParam String simulatorId) {
+
+        return fleetAllocationService.assignTrucks(simulatorId);
+    }
+
+
+    @PostMapping("/heartbeat")
+    public void heartbeat(
+            @RequestParam String simulatorId
+    ) {
+
+        fleetAllocationService.heartbeat(simulatorId);
+
+    }
+
+
+    @GetMapping("/online")
+    public List<Truck> getOnlineTrucks() {
+
+        return fleetAllocationService.getOnlineTrucks();
+
     }
 
 }

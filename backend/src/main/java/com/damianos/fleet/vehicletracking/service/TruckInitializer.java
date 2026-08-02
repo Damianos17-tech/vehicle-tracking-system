@@ -9,6 +9,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 @Component
@@ -84,17 +85,21 @@ public class TruckInitializer implements CommandLineRunner {
     private void initializeTrucks() {
 
 
+        int fleetSize = 300;
+
         // BAZA JEST PUSTA -> TWORZYMY PIERWSZĄ FLOTĘ
 
-        if (jpaTruckRepository.count() == 0) {
+        if (jpaTruckRepository.count() == 0 || jpaTruckRepository.count() < fleetSize) {
 
+            truckRepository.clear();
+            jpaTruckRepository.deleteAll();
 
             List<Truck> trucks = new ArrayList<>();
 
 
             trucks.add(new Truck("TRUCK-001", "DAF XF 460 tandem", 90, Status.ACTIVE));
             trucks.add(new Truck("TRUCK-002", "DAF XF 530 plandeka", 83, Status.ACTIVE));
-
+            trucks.add(new Truck("TRUCK-003", "MAN TGX 540 silos", 83, Status.ACTIVE));
             trucks.add(new Truck("TRUCK-004", "Mercedes Actros 1851 cysterna", 80, Status.ACTIVE));
             trucks.add(new Truck("TRUCK-005", "Volvo FH 500 plandeka", 92, Status.ACTIVE));
             trucks.add(new Truck("TRUCK-006", "Renault T-High 520 plandeka", 88, Status.ACTIVE));
@@ -103,15 +108,17 @@ public class TruckInitializer implements CommandLineRunner {
             trucks.add(new Truck("TRUCK-009", "Scania R730 chłodnia", 91, Status.ACTIVE));
 
 
-            for (int i = 3; i <= 77; i++) {
+
+
+            for (int i = 10; i <= fleetSize; i++) {
 
                 trucks.add(
-                    new Truck(
-                        "TRUCK-" + i,
-                        "Truck " + i,
-                        90,
-                        Status.ACTIVE
-                    )
+                        new Truck(
+                                String.format("TRUCK-%03d", i),
+                                "Truck " + i,
+                                90,
+                                Status.ACTIVE
+                        )
                 );
             }
 
@@ -128,6 +135,8 @@ public class TruckInitializer implements CommandLineRunner {
                         destination
                     )
                 );
+
+                truck.setOnline(false);
 
             });
 
@@ -153,6 +162,10 @@ public class TruckInitializer implements CommandLineRunner {
             List<Truck> trucksFromDatabase =
                     jpaTruckRepository.findAll();
 
+            trucksFromDatabase.sort(
+                    Comparator.comparing(Truck::getId)
+            );
+
 
             trucksFromDatabase.forEach(truck -> {
 
@@ -168,6 +181,9 @@ public class TruckInitializer implements CommandLineRunner {
                 );
 
 
+                truck.setOnline(false);
+                truck.setSimulatorId(null);
+
                 truckRepository.save(truck);
 
             });
@@ -177,6 +193,8 @@ public class TruckInitializer implements CommandLineRunner {
                     "Loaded trucks from database: "
                     + trucksFromDatabase.size()
             );
+
+            truckRepository.setRepoInitialized(true);
         }
     }
 }

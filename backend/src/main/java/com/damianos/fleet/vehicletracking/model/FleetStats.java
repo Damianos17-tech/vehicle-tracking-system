@@ -12,10 +12,12 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class FleetStats {
+
     public long total;
     public long broken;
     public long warnings;
     public long stopped;
     public long paused;
 
+    public long online;
 }

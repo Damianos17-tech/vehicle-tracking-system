@@ -7,6 +7,7 @@ export interface FleetStats {
   broken: number;
   warnings: number;
   paused: number;
+  online: number;
 }
 
 export function useFleetStats() {
@@ -18,6 +19,7 @@ export function useFleetStats() {
     broken: 0,
     warnings: 0,
 	paused: 0,
+	online: 0,
   });
 
 

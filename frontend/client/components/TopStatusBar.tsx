@@ -12,6 +12,7 @@ type Truck = {
 
 type FleetStats = {
   total: number;
+  online: number;
   broken: number;
   warnings: number;
 };
@@ -31,6 +32,7 @@ export default function TopStatusBar({
   // 🟢 STATE NA STATYSTYKI Z BACKENDU
   const [stats, setStats] = useState<FleetStats>({
     total: 0,
+	online: 0,
     broken: 0,
     warnings: 0,
   });
@@ -95,8 +97,8 @@ export default function TopStatusBar({
 
           <span className="text-slate-400">•</span>
 
-          <span className="text-slate-300">
-            {stats.total} pojazdów online
+          <span className="text-slate-300 font-bold">
+            {stats.online}/{stats.total} pojazdów online
           </span>
 
           <span className="text-slate-400">•</span>

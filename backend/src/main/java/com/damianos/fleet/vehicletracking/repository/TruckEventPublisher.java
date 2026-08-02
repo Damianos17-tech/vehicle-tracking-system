@@ -43,7 +43,7 @@ public class TruckEventPublisher {
 
 
         // Elasticsearch
-        elasticSearchService.saveEvent(event);
+        //elasticSearchService.saveEvent(event);
     }
 
 

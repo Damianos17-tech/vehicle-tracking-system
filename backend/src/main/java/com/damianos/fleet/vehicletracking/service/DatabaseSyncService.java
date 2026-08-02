@@ -9,6 +9,7 @@ import com.damianos.fleet.vehicletracking.repository.TruckRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -39,6 +40,18 @@ public class DatabaseSyncService {
 //
 //        trucks.forEach(truckRepository::save);
 //    }
+
+
+    @Scheduled(fixedRate = 5000)
+    public void syncTrucks() {
+
+
+        List<Truck> trucks = truckRepository.findAll();
+
+        trucks.sort(Comparator.comparing(Truck::getId));
+        trucks.forEach(jpaTruckRepository::save);
+
+    }
 
 
     @Scheduled(fixedRate = 5000)

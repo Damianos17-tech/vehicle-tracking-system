@@ -79,6 +79,11 @@ public class Truck {
     private long drivingStartedAt = System.currentTimeMillis();
 
     private long lastSpeedingEvent = 0;
+    private boolean online;
+    private String simulatorId;
+
+
+
 
 
     public Truck() {
@@ -282,7 +287,6 @@ public class Truck {
                 ", status=" + status +
                 ", speed=" + speed +
                 ", position=" + position +
-                ", route=" + route +
                 ", routeIndex=" + routeIndex +
                 ", lastUpdateTime=" + lastUpdateTime +
                 ", fuelLevel=" + fuelLevel +
@@ -299,6 +303,8 @@ public class Truck {
                 ", driverBreakSeconds=" + driverBreakSeconds +
                 ", idleStopSeconds=" + idleStopSeconds +
                 ", kmToService=" + kmToService +
+                ", online=" + online +
+                ", simulatorId='" + simulatorId + '\'' +
                 '}';
     }
 

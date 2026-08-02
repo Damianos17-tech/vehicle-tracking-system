@@ -1,52 +1,61 @@
 package com.damianos.fleet.simulator.service;
 
 
-
-import com.damianos.fleet.simulator.model.OsrmResponse;
 import com.damianos.fleet.simulator.model.Position;
 import com.damianos.fleet.simulator.model.Truck;
 import jakarta.annotation.PostConstruct;
 import lombok.Getter;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpMethod;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
-import com.damianos.fleet.simulator.model.TruckState.*;
+import java.util.UUID;
+
 
 @Component
-@Service
 public class FleetManager {
 
+
+    private static final int EXPECTED_TRUCKS = 100;
+
+
     private final RouteService routeService;
+
+    private final RestTemplate restTemplate;
+
 
     @Getter
     private final List<Truck> trucks = new ArrayList<>();
 
-    public FleetManager(RouteService routeService){
+
+    @Value("${backend.url}")
+    private String backendUrl;
+
+
+    private final String simulatorId =
+            UUID.randomUUID().toString();
+
+
+    private volatile boolean backendAvailable = false;
+    private volatile boolean alreadyRegistered = false;
+
+
+
+
+    public FleetManager(
+            RouteService routeService,
+            RestTemplateBuilder builder
+    ) {
         this.routeService = routeService;
+        this.restTemplate = builder.build();
     }
 
-    public void addTruck(Truck truck) {
-        trucks.add(truck);
-    }
-
-
-    public Truck getTruckById(String id) {
-
-        return trucks.stream()
-                .filter(truck -> truck.getId().equals(id))
-                .findFirst()
-                .orElse(null);
-    }
-
-
-    public void removeTruck(String id) {
-
-        trucks.removeIf(
-                truck -> truck.getId().equals(id)
-        );
-    }
 
 
 
@@ -55,64 +64,171 @@ public class FleetManager {
     public void initFleet() {
 
 
-        trucks.add(new Truck(
-                "TRUCK-001",
-                "DAF XF 460 tandem",
-                90,
-                Status.ACTIVE
-        ));
+        Thread.startVirtualThread(() -> {
 
 
-        trucks.add(new Truck(
-                "TRUCK-002",
-                "DAF XF 530 plandeka",
-                83,
-                Status.ACTIVE
-        ));
+            while(!alreadyRegistered) {
 
 
-        trucks.add(new Truck(
-                "TRUCK-004",
-                "Mercedes Actros 1851 cysterna",
-                80,
-                Status.ACTIVE
-        ));
-
-        // itd...
+                try {
 
 
-        for (int i = 3; i <= 77; i++) {
-
-            trucks.add(
-                    new Truck(
-                            "TRUCK-" + i,
-                            "Truck " + i,
-                            90,
-                            Status.ACTIVE
-                    )
-            );
-        }
+                    synchronized (trucks) {
 
 
-        trucks.forEach(truck -> {
+                        if(trucks.size() >= EXPECTED_TRUCKS) {
 
-            Position destination = new Position();
 
-            truck.setRoute(
-                    routeService.generateRoute(
-                            truck.getPosition(),
-                            destination
-                    )
-            );
+                            System.out.println(
+                                    "Simulator already initialized: "
+                                            + trucks.size()
+                                            + " trucks"
+                            );
+
+
+                            backendAvailable = true;
+
+                            break;
+                        }
+
+                    }
+
+
+
+
+                    registerToBackend();
+                    alreadyRegistered = true;
+
+
+                    backendAvailable = true;
+
+
+                    System.out.println(
+                            "Backend connection OK"
+                    );
+
+
+                    break;
+
+
+
+                } catch(Exception e) {
+
+
+                    backendAvailable = false;
+                    alreadyRegistered = false;
+
+
+                    System.out.println(
+                            "Backend unavailable - retry in 10s"
+                    );
+
+
+
+                    try {
+
+                        Thread.sleep(10000);
+
+                    } catch(Exception ignored) {}
+
+                }
+
+
+            }
+
 
         });
 
+    }
 
-        System.out.println(
-                "Fleet initialized: "
-                        + trucks.size()
-                        + " trucks"
-        );
+
+
+
+
+
+
+    @Scheduled(fixedDelay = 4000)
+    public void sendHeartbeat() {
+
+
+        try {
+
+
+            restTemplate.postForLocation(
+
+                    backendUrl
+                            + "/fleet/heartbeat?simulatorId="
+                            + simulatorId,
+
+                    null
+            );
+
+
+
+            if(!backendAvailable) {
+
+
+                System.out.println(
+                        "Backend restored"
+                );
+
+
+                synchronized (trucks) {
+
+
+                    if(trucks.size() >= EXPECTED_TRUCKS) {
+
+
+                        System.out.println(
+                                "Existing trucks reused"
+                        );
+
+
+                    } else {
+
+
+                        System.out.println(
+                                "Reloading trucks"
+                        );
+
+
+                        registerToBackend();
+
+                    }
+
+
+                }
+
+
+
+                backendAvailable = true;
+
+            }
+
+
+
+
+        } catch(Exception e) {
+
+
+            backendAvailable = false;
+
+
+
+            synchronized (trucks) {
+
+                trucks.clear();
+
+            }
+
+
+
+            System.out.println(
+                    "Backend unavailable - trucks cleared"
+            );
+
+        }
+
     }
 
 
@@ -122,53 +238,175 @@ public class FleetManager {
 
 
 
+    private void registerToBackend() {
+
+
+
+        System.out.println(
+                "Registering simulator: "
+                        + simulatorId
+        );
+
+
+
+
+        List<Truck> assigned =
+
+
+                restTemplate.exchange(
+
+                        backendUrl
+                                + "/fleet/register?simulatorId="
+                                + simulatorId,
+
+                        HttpMethod.GET,
+
+                        null,
+
+                        new ParameterizedTypeReference<List<Truck>>() {}
+
+                ).getBody();
 
 
 
 
 
-//    @PostConstruct
-//    public void initFleet() {
-//
-//        trucks.add(new Truck(
-//                "TRUCK-001",
-//                "MAN TGX",
-//                90,
-//                Status.ACTIVE
-//        ));
-//
-//        trucks.add(new Truck(
-//                "TRUCK-002",
-//                "Volvo FH16",
-//                90,
-//                Status.ACTIVE
-//        ));
-//
-//        trucks.add(new Truck(
-//                "TRUCK-003",
-//                "Scania R500",
-//                90,
-//                Status.ACTIVE
-//        ));
-//
-//        for(Truck truck : trucks){
-//            //truck.setPosition(new Position());
-//
-//            Position start = truck.getPosition();
-//            Position destination = new Position();
-//            truck.setRoute(routeService.generateRoute(start, destination));
-//
-//
-//            System.out.println(
-//                    truck.getId() +
-//                            " route = " +
-//                            truck.getRoute()
-//            );
-//        }
-//
-//
-//        //generateNewRoute
-//
-//        System.out.println("Fleet initialized: " + trucks.size() + " trucks");
-//    }
+        if(assigned == null || assigned.isEmpty()) {
+
+
+            throw new RuntimeException(
+                    "No trucks received"
+            );
+
+        }
+
+
+
+
+
+
+
+        assigned.forEach(truck -> {
+
+
+            Position destination =
+                    new Position();
+
+
+
+            truck.setRoute(
+
+                    routeService.generateRoute(
+
+                            truck.getPosition(),
+
+                            destination
+
+                    )
+
+            );
+
+
+        });
+
+
+
+
+
+
+
+        synchronized (trucks) {
+
+
+            trucks.clear();
+
+
+            trucks.addAll(assigned);
+
+
+        }
+
+
+
+
+
+        System.out.println(
+
+                "Simulator loaded trucks: "
+                        + trucks.size()
+
+        );
+
+
+    }
+
+
+
+
+
+
+
+
+    public void addTruck(Truck truck) {
+
+
+        synchronized (trucks) {
+
+            trucks.add(truck);
+
+        }
+
+    }
+
+
+
+
+
+
+
+    public Truck getTruckById(String id) {
+
+
+        synchronized (trucks) {
+
+
+            return trucks.stream()
+
+                    .filter(truck ->
+                            truck.getId().equals(id)
+                    )
+
+                    .findFirst()
+
+                    .orElse(null);
+
+        }
+
+    }
+
+
+
+
+
+
+
+    public void removeTruck(String id) {
+
+
+        synchronized (trucks) {
+
+
+            trucks.removeIf(
+
+                    truck ->
+                            truck.getId().equals(id)
+
+            );
+
+        }
+
+    }
+
+
+
 }

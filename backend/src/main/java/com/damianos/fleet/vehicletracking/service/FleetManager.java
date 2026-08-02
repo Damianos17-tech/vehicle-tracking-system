@@ -111,36 +111,36 @@ public class FleetManager {
 
 
 
-    public FleetStats getStats() {
-
-        //List<Truck> trucks = repo.findAll();
-        List<Truck> trucks = List.copyOf(repo.findAll());
-
-        long broken = trucks.stream()
-                .filter(t -> t.getStatus() == TruckState.Status.FAILURE)
-                .count();
-
-        long warnings = trucks.stream()
-                .filter(t -> t.getWarnings() != null && !t.getWarnings().isEmpty())
-                .count();
-
-        long stopped = trucks.stream()
-                .filter(t -> t.getSpeed() == 0)
-                .count();
-
-        long paused = trucks.stream()
-                .filter(t -> t.isPaused())
-                .count();
-
-        FleetStats stats = new FleetStats();
-        stats.setTotal(trucks.size());
-        stats.setBroken(broken);
-        stats.setWarnings(warnings);
-        stats.setStopped(stopped);
-        stats.setPaused(paused);
-
-        return stats;
-    }
+//    public FleetStats getStats() {
+//
+//        //List<Truck> trucks = repo.findAll();
+//        List<Truck> trucks = List.copyOf(repo.findAll());
+//
+//        long broken = trucks.stream()
+//                .filter(t -> t.getStatus() == TruckState.Status.FAILURE)
+//                .count();
+//
+//        long warnings = trucks.stream()
+//                .filter(t -> t.getWarnings() != null && !t.getWarnings().isEmpty())
+//                .count();
+//
+//        long stopped = trucks.stream()
+//                .filter(t -> t.getSpeed() == 0)
+//                .count();
+//
+//        long paused = trucks.stream()
+//                .filter(t -> t.isPaused())
+//                .count();
+//
+//        FleetStats stats = new FleetStats();
+//        stats.setTotal(trucks.size());
+//        stats.setBroken(broken);
+//        stats.setWarnings(warnings);
+//        stats.setStopped(stopped);
+//        stats.setPaused(paused);
+//
+//        return stats;
+//    }
 
     public Truck getTruck(String id) {
         return repo.findById(id);

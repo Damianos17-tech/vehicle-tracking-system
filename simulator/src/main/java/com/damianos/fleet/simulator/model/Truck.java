@@ -119,6 +119,11 @@ public class Truck {
         if (!canMove()) { this.speed = 0; this.lastDistanceKm = 0.0; return this.position; }
         long now = System.currentTimeMillis();
 
+        //Position next = route.get(routeIndex);
+        if(routeIndex >= route.size()){
+            reverseRoute();
+        }
+
         Position next = route.get(routeIndex);
 
 

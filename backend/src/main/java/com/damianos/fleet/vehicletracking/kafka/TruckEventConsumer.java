@@ -34,12 +34,7 @@ public class TruckEventConsumer {
     public void consume(TruckEvent event) {
 
 
-        System.out.println(
-                "EVENT FROM KAFKA: "
-                        + event.getTruckId()
-                        + " "
-                        + event.getType()
-        );
+        //System.out.println("EVENT FROM KAFKA: " + event.getTruckId() + " " + event.getType());
 
 
         Truck truck = truckRepository.findById(event.getTruckId());
@@ -54,7 +49,6 @@ public class TruckEventConsumer {
         // dodajemy event do trucka
         truck.addEvent(event);
 
-
         // zapisujemy zmianę
         truckRepository.save(truck);
 
@@ -65,7 +59,8 @@ public class TruckEventConsumer {
                 truck
         );
 
-        elasticSearchService.saveEvent(event);
+        // wysyłamy do ElasticSearch
+        //elasticSearchService.saveEvent(event);
 
 
 

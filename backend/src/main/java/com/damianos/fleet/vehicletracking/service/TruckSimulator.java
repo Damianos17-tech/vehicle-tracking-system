@@ -1,7 +1,9 @@
 package com.damianos.fleet.vehicletracking.service;
 
+import com.damianos.fleet.vehicletracking.config.FleetAllocationService;
 import com.damianos.fleet.vehicletracking.model.Position;
 import com.damianos.fleet.vehicletracking.model.Truck;
+import com.damianos.fleet.vehicletracking.repository.TruckRepository;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
@@ -14,13 +16,17 @@ import java.util.concurrent.TimeUnit;
 public class TruckSimulator {
 
     private final TruckPositionPublisher publisher;
-    private final FleetManager fleetManager;
+    //private final FleetManager fleetManager;
     private final TruckConditionService truckConditionService;
 
+    private final FleetAllocationService fleetAllocationService;
 
-    public TruckSimulator(TruckPositionPublisher publisher, FleetManager fleetManager, TruckConditionService truckConditionService) {
+
+    public TruckSimulator(TruckPositionPublisher publisher, TruckConditionService truckConditionService, FleetAllocationService fleetAllocationService) {
         this.publisher = publisher;
-        this.fleetManager = fleetManager;
+
+        this.fleetAllocationService = fleetAllocationService;
+
         this.truckConditionService = truckConditionService;
     }
 
@@ -38,7 +44,10 @@ public class TruckSimulator {
 
     private void tick() {
 
-        List<Truck> trucks = fleetManager.getTrucks();
+        //List<Truck> trucks = fleetManager.getTrucks();
+        List<Truck> trucks = fleetAllocationService.getOnlineTrucks();
+
+
         if (trucks.isEmpty()) {
             System.out.println("NO TRUCKS YET");
             return;
@@ -84,37 +93,6 @@ public class TruckSimulator {
 
 
 
-
-
-    private void tickOld() {
-        //System.out.println("TICK >>> simulator running");
-
-        fleetManager.getTrucks().forEach(truck -> {
-
-            Position newPos = moveTruck(truck);
-            if (newPos == null) { return; }
-
-            //System.out.println(truck.getId() + " -> " + newPos.getLatitude() + ", " + newPos.getLongitude());
-           /* System.out.println(
-                    truck.getId()
-                            + " | pos=" + newPos
-                            + " | speed=" + truck.getSpeed()
-                            + " km/h"
-                            + " | status=" + truck.getStatus()
-                            + " | warnings=" + truck.getWarnings()
-                            + " | failures=" + truck.getFailures()
-                            + " | fuel=" + String.format("%.2f", truck.getFuelLevel())
-                            + "%"
-                            + " | condition=" + String.format("%.2f", truck.getTechnicalCondition())
-                            + "%"
-                            + " | przebieg: km=" + String.format("%.3f", truck.getTotalDistanceKm())
-                            + " | events=" + truck.getEventsText()
-                            + " | next service =" + truck.getKmToService()
-            );*/
-
-            publisher.send(truck);
-        });
-    }
 
     private Position moveTruck(Truck truck) {
         Position newPosition = truck.nextPosition();

@@ -43,16 +43,29 @@ public class TruckStateConsumer {
 
         if (existing != null) {
 
-            truck.setEvents(existing.getEvents());
-            truck.setWarnings(existing.getWarnings());
-            truck.setFailures(existing.getFailures());
+            existing.setPosition(truck.getPosition());
+            existing.setSpeed(truck.getSpeed());
+            existing.setFuelLevel(truck.getFuelLevel());
+            existing.setStatus(truck.getStatus());
+
+
 
             if (truck.getRoute() == null) {
-                truck.setRoute(existing.getRoute());
+                existing.setRoute(truck.getRoute());
             }
-        }
 
-        truckRepository.save(truck);
+
+
+            truckRepository.save(existing);
+
+
+            messagingTemplate.convertAndSend(
+                    "/topic/trucks",
+                    existing
+            );
+
+            return;
+        }
 
 
         // FRONTEND
