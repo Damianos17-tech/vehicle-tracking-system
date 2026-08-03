@@ -5,19 +5,24 @@ import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
 import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketTransportRegistration;
 
 @Configuration
 @EnableWebSocketMessageBroker
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
-        // gdzie backend wysyła dane (publish/subscribe)
+
+        // backend -> frontend
         config.enableSimpleBroker("/topic");
 
-        // prefix dla wiadomości wysyłanych DO backendu (jeśli kiedyś użyjesz @MessageMapping)
+        // frontend -> backend
         config.setApplicationDestinationPrefixes("/app");
+
     }
+
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
@@ -25,6 +30,18 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/ws")
                 .setAllowedOriginPatterns("*");
 
-        // ❌ NIE MA .withSockJS()
+        // bez SockJS - zostawiamy tak jak było
+
     }
+
+
+    @Override
+    public void configureWebSocketTransport(WebSocketTransportRegistration registry) {
+
+        registry
+                .setSendBufferSizeLimit(2 * 1024 * 1024)  // 1 MB
+                .setSendTimeLimit(20000);             // 20 sekund
+
+    }
+
 }

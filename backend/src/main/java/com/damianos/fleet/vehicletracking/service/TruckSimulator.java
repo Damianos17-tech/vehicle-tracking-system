@@ -39,7 +39,7 @@ public class TruckSimulator {
 
 
 
-    private static final int UPDATE_PER_TICK = 5; // limit wysyłki
+    private static final int UPDATE_PER_TICK = 3; // limit wysyłki
     private int index = 0;
 
     private void tick() {
