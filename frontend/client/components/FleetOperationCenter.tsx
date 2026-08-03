@@ -189,7 +189,7 @@ export default function FleetOperationCenter({ onViewSelect, activeView, trucks,
 			  <div>
                 <div className="flex justify-between mb-1">
                   <span className="text-md text-slate-200">Disk Usage </span>
-                  <span className="text-md font-bold text-white">{(infra.diskFree / 1000).toFixed(1)} GB / {(infra.diskTotal / 1000).toFixed(1)} GB</span>
+                  <span className="text-md font-bold text-white">{((infra.diskTotal - infra.diskFree) / 1000).toFixed(1)} GB / {(infra.diskTotal / 1000).toFixed(1)} GB</span>
                 </div>
 				<div className="relative w-full bg-slate-700 rounded-full h-4 overflow-hidden">
 
@@ -284,7 +284,7 @@ export default function FleetOperationCenter({ onViewSelect, activeView, trucks,
 			  </div>
 
 			  <div className="text-2xl font-bold text-yellow-400">
-				{stats.warnings-stats.paused}
+				{stats.warnings}
 			  </div>
 			</div>
 						  
