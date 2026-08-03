@@ -46,6 +46,7 @@ docker compose up --build
 |---|---|
 | Frontend | 8080 |
 | Backend | 8090 |
+| Simulator | 8060 |
 | PostgreSQL | 5432 |
 | KafkaUI | 7000 |
 | Kafka | 9092 |
