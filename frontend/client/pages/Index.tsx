@@ -75,11 +75,12 @@ export default function Index() {
 					/>
       )}
 	  
-	  
+					  
 				{activeView === "infra" && (
 				  <InfrastructureDiagram
 					trucks={trucks}
 					onBack={() => changeView("dashboard")}
+					messagesPerSecond={messagesPerSecond}
 				  />
 				)}
 				  

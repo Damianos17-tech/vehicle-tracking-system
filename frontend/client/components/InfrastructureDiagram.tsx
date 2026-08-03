@@ -31,13 +31,13 @@ export default function InfrastructureDiagram({
     <div className="h-screen w-screen overflow-y-auto infrastructure-page">
 
 
-      <MainHeader
-        trucks={trucks}
-        sidebarOpen={sidebarOpen}
-        toggleSidebar={toggleSidebar}
-        onHomeClick={onBack}
-        messagesPerSecond={messagesPerSecond}
-      />
+			<MainHeader
+			  trucks={trucks}
+			  sidebarOpen={sidebarOpen}
+			  toggleSidebar={toggleSidebar}
+			  onHomeClick={onBack}
+			  messagesPerSecond={messagesPerSecond}
+			/>
 
 
       <div className="diagram-background">
