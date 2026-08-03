@@ -175,7 +175,6 @@ services:
     build:
       context: ./simulator
 
-    container_name: simulator
 
 
     environment:
