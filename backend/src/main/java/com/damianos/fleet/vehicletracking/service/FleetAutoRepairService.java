@@ -62,7 +62,7 @@ public class FleetAutoRepairService {
 
                 eventPublisher.publish(truck, "SYSTEM_RECOVERY", "Automatic Fleet emergency recovery - vehicle repaired");
 
-
+                truckRepository.save(truck);
 
                 //commandProducer.sendCommand(truck.getId(), "REPAIR");
                 //commandProducer.sendCommand(truck.getId(), "REFUEL");

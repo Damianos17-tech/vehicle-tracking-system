@@ -15,7 +15,7 @@ public class TruckSimulator {
     private final FleetManager fleetManager;
     private final TruckConditionService truckConditionService;
 
-    private static final int UPDATE_PER_TICK = 5;
+    private static final int UPDATE_PER_TICK = 3;
 
     private int index = 0;
 
