@@ -29,7 +29,9 @@ public class FleetAutoRepairService {
     public void checkFleet() {
 
         //List<Truck> trucks = truckRepository.findAll();
-        List<Truck> trucks = new ArrayList<>(truckRepository.findAll());
+        List<Truck> trucks = new ArrayList<>(
+                truckRepository.findAllByOnlineTrue()
+        );
 
 
         boolean allStopped =

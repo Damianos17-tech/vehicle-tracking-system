@@ -122,8 +122,22 @@ public class TruckRepository {
     }
 
 
+    public List<Truck> findAllByOnlineTrue() {
 
+        List<Truck> onlineTrucks = new ArrayList<>();
 
+        for (Truck truck : trucks) {
 
+            if (truck.isOnline()) {
+                onlineTrucks.add(truck);
+            }
 
+        }
+
+        onlineTrucks.sort(
+                Comparator.comparing(Truck::getId)
+        );
+
+        return onlineTrucks;
+    }
 }

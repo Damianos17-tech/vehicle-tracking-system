@@ -234,7 +234,7 @@ export default function FleetOperationCenter({ onViewSelect, activeView, trucks,
               </div>
               <div className="flex justify-between items-center p-2 bg-slate-700/30 rounded">
                 <span className="text-md text-slate-200">Moving</span>
-                <span className="text-2xl font-bold text-emerald-400">{stats.total-stats.stopped}</span>
+                <span className="text-2xl font-bold text-emerald-400">{stats.online-stats.stopped}</span>
               </div>
               <div className="flex justify-between items-center p-2 bg-slate-700/30 rounded">
                 <span className="text-md text-slate-200">Stopped</span>
