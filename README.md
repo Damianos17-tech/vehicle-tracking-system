@@ -16,7 +16,8 @@ The project demonstrates practical skills in backend development, DevOps practic
 
 
 
-<img width="1884" height="795" alt="KafkaUI_Accident" src="https://github.com/user-attachments/assets/87431545-8fd6-4315-97d2-ffcdab6ed7cf" />
+<img width="1901" height="834" alt="KafkaUI_Accident" src="https://github.com/user-attachments/assets/a0b7bb8c-6aa4-4ba7-9335-a99a20b5f3aa" />
+
 
 
 ---
