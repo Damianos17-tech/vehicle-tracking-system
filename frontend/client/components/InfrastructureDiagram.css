@@ -1,0 +1,374 @@
+.infrastructure-page {
+
+    min-height:100vh;
+
+    background:#0f172a;
+
+}
+
+
+
+/* kremowe tło tylko dla diagramu */
+.diagram-background {
+
+    min-height:calc(100vh - 80px);
+
+    background:linear-gradient(
+        180deg,
+        #fff8e7,
+        #efe3cc
+    );
+
+    padding:40px;
+
+}
+
+
+
+/* tytuł */
+
+.infrastructure-page h1 {
+
+    text-align:center;
+
+    margin-bottom:40px;
+
+    font-size:42px;
+
+    font-weight:900;
+
+    letter-spacing:2px;
+
+    color:#020617;
+
+    text-transform:uppercase;
+
+    text-shadow:
+        2px 2px 0 rgba(255,255,255,0.7);
+
+}
+
+
+
+
+
+/* główny kontener */
+
+.architecture {
+
+    display:flex;
+
+    flex-direction:column;
+
+    align-items:center;
+
+    width:100%;
+
+    padding-bottom:100px;
+
+}
+
+
+
+
+
+/* każdy poziomy rząd klocków */
+
+.infrastructure-row {
+
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    flex-wrap:wrap;
+
+    width:100%;
+
+    gap:30px;
+
+    margin:40px 0;
+
+
+}
+
+
+
+
+
+/* pojedynczy klocek */
+
+.node {
+
+    width:320px;
+
+    padding:20px;
+
+    border-radius:16px;
+
+
+    background:#1e293b;
+
+
+    border:5px solid red;
+
+
+    text-align:center;
+
+    color:white;
+
+
+    box-shadow:
+        0 10px 25px rgba(0,0,0,0.25);
+
+}
+
+
+
+
+
+.node h3 {
+
+    margin-bottom:10px;
+
+}
+
+
+
+
+
+.node p {
+
+    opacity:0.8;
+
+}
+
+
+
+
+
+.node span {
+
+    display:block;
+
+    margin-top:8px;
+
+    font-size:14px;
+
+}
+
+
+
+
+
+/* strzałki */
+
+.arrow {
+
+    font-size:40px;
+
+    margin:15px;
+
+    color:#020617;
+
+    font-weight:900;
+
+}
+
+
+
+
+
+/* stare połączenia Backend -> DB */
+
+.connections {
+
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    flex-wrap:wrap;
+
+
+    width:100%;
+
+    gap:30px;
+
+    margin:40px 0;
+
+
+}
+
+
+
+
+
+/* kolory technologii */
+
+.kafka {
+
+    border-color:#f59e0b;
+
+}
+
+
+.backend {
+
+    border-color:#22c55e;
+
+}
+
+
+.database {
+
+    border-color:#60a5fa;
+
+}
+
+
+.elastic {
+
+    border-color:#22c55e;
+
+}
+
+
+.osrm {
+
+    border-color:#a855f7;
+
+}
+
+
+.frontend {
+
+    border-color:#06b6d4;
+
+}
+
+
+.grafana {
+
+    border-color:#f97316;
+
+}
+
+
+.kibana {
+
+    border-color:#22c55e;
+
+}
+
+
+.kafka-ui {
+
+    border-color:#eab308;
+
+}
+
+
+
+
+
+/* przycisk powrotu */
+
+.back-button {
+
+
+    font-weight:900;
+
+    color:#000000;
+
+
+    font-size:18px;
+
+
+    padding:10px 20px;
+
+
+    border-radius:10px;
+
+
+    background:rgba(255,255,255,0.5);
+
+
+    border:2px solid #000000;
+
+
+    cursor:pointer;
+
+
+}
+
+
+
+.back-button:hover {
+
+
+    background:white;
+
+    transform:scale(1.05);
+
+
+}
+
+
+
+
+
+/* nagłówki sekcji */
+
+.architecture-section {
+
+
+    margin-top:90px;
+
+    text-align:center;
+
+
+}
+
+
+
+.architecture-section h2 {
+
+
+    color:#020617;
+
+
+    font-size:32px;
+
+    font-weight:900;
+
+    margin-bottom:40px;
+
+
+}
+
+
+.simulators-row {
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:30px;
+
+    margin-bottom:20px;
+
+}
+
+
+.simulators-row .node {
+
+    width:280px;
+
+}

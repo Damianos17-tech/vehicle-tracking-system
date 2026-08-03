@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import FleetOperationCenter from "@/components/FleetOperationCenter";
 import TruckMap from "@/components/TruckMap";
 import { useTruckStream } from "@/hooks/useTruckStream";
+import InfrastructureDiagram from "@/components/InfrastructureDiagram";
 
 export default function Index() {
 
@@ -73,6 +74,16 @@ export default function Index() {
 					  messagesPerSecond={messagesPerSecond}
 					/>
       )}
+	  
+	  
+				{activeView === "infra" && (
+				  <InfrastructureDiagram
+					trucks={trucks}
+					onBack={() => changeView("dashboard")}
+				  />
+				)}
+				  
+	  
     </>
   );
 }

@@ -28,6 +28,7 @@ export default function FleetOperationCenter({ onViewSelect, activeView, trucks,
 
   const KIBANA_URL = `http://${HOST}:5601`;
   const GRAFANA_URL = `http://${HOST}:3000`;
+  const KAFKA_UI_URL = `http://${HOST}:7000`;
 	
 	
 
@@ -338,8 +339,22 @@ export default function FleetOperationCenter({ onViewSelect, activeView, trucks,
 						  "_blank"
 						);
 					  }
+					  
+					  else if (view.id === "cicd") {
+						  window.open(
+							`${KAFKA_UI_URL}`,
+							"_blank"
+						  );
+						}
 
-					  else {
+						else if (view.id === "settings") {
+						  window.open(
+							`${KAFKA_UI_URL}`,
+							"_blank"
+						  );
+						}
+
+											  else {
 						onViewSelect(view.id);
 					  }
 					}}
