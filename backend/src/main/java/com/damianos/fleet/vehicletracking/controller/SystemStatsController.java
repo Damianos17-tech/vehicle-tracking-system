@@ -200,39 +200,22 @@ public class SystemStatsController {
 
     private double getHeapMetric(String name) {
 
-
         try {
 
-
-            Gauge gauge =
-                    registry
-                            .find(name)
-                            .tag(
-                                    "area",
-                                    "heap"
-                            )
-                            .gauge();
+            return registry
+                    .find(name)
+                    .tag("area", "heap")
+                    .gauges()
+                    .stream()
+                    .mapToDouble(Gauge::value)
+                    .sum();
 
 
+        } catch(Exception e) {
 
-
-            if(gauge != null) {
-
-                return gauge.value();
-
-            }
-
-
-
-
-        } catch(Exception ignored) {
+            return 0;
 
         }
-
-
-
-        return 0;
-
     }
 
 }
