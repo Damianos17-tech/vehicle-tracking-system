@@ -148,39 +148,7 @@ The system consists of independent services running in Docker containers:
 
 ## Architecture Flow
 
-Truck Simulator
-
-        |
-        |
-        v
-
-Apache Kafka
-(truck-state topic)
-
-        |
-        |
-        v
-
-Spring Boot Backend
-
-        |
-        +----------------+
-        |                |
-        v                v
-
-PostgreSQL       Elasticsearch
-
-        |
-        |
-        v
-
-WebSocket / STOMP
-
-        |
-        |
-        v
-
-React + Leaflet Fleet Dashboard
+<img width="1145" height="937" alt="FlowArchitecture" src="https://github.com/user-attachments/assets/8c658b9b-925f-41d9-aacc-8f845410025f" />
 
 
 ---
