@@ -26,7 +26,7 @@ The entire system can be started locally using Docker Compose.
 
 ## Clone repository
 
-git clone https://github.com/USERNAME/vehicle-tracking-system.git
+git clone https://github.com/Damianos17-tech/vehicle-tracking-system.git
 
 cd vehicle-tracking-system
 
