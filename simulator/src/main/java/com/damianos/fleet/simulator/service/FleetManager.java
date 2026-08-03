@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -42,9 +43,8 @@ public class FleetManager {
             UUID.randomUUID().toString();
 
 
-    private volatile boolean backendAvailable = false;
-    private volatile boolean alreadyRegistered = false;
 
+    private volatile boolean backendAvailable = false;
 
 
 
@@ -58,53 +58,33 @@ public class FleetManager {
 
 
 
+    public boolean isBackendAvailable() {
+        return backendAvailable;
+    }
+
+
 
 
     @PostConstruct
     public void initFleet() {
 
-
         Thread.startVirtualThread(() -> {
 
 
-            while(!alreadyRegistered) {
+            while (true) {
 
 
                 try {
 
 
-                    synchronized (trucks) {
-
-
-                        if(trucks.size() >= EXPECTED_TRUCKS) {
-
-
-                            System.out.println(
-                                    "Simulator already initialized: "
-                                            + trucks.size()
-                                            + " trucks"
-                            );
-
-
-                            backendAvailable = true;
-
-                            break;
-                        }
-
-                    }
-
-
-
-
                     registerToBackend();
-                    alreadyRegistered = true;
 
 
                     backendAvailable = true;
 
 
                     System.out.println(
-                            "Backend connection OK"
+                            "Simulator registered OK"
                     );
 
 
@@ -116,23 +96,19 @@ public class FleetManager {
 
 
                     backendAvailable = false;
-                    alreadyRegistered = false;
 
 
                     System.out.println(
-                            "Backend unavailable - retry in 10s"
+                            "Registration failed - retry in 10s"
                     );
 
 
-
                     try {
-
                         Thread.sleep(10000);
-
-                    } catch(Exception ignored) {}
+                    }
+                    catch(Exception ignored){}
 
                 }
-
 
             }
 
@@ -146,85 +122,28 @@ public class FleetManager {
 
 
 
-
     @Scheduled(fixedDelay = 4000)
     public void sendHeartbeat() {
 
-
         try {
 
-
             restTemplate.postForLocation(
-
                     backendUrl
                             + "/fleet/heartbeat?simulatorId="
                             + simulatorId,
-
                     null
             );
 
 
-
-            if(!backendAvailable) {
-
-
-                System.out.println(
-                        "Backend restored"
-                );
+            backendAvailable = true;
 
 
-                synchronized (trucks) {
-
-
-                    if(trucks.size() >= EXPECTED_TRUCKS) {
-
-
-                        System.out.println(
-                                "Existing trucks reused"
-                        );
-
-
-                    } else {
-
-
-                        System.out.println(
-                                "Reloading trucks"
-                        );
-
-
-                        registerToBackend();
-
-                    }
-
-
-                }
-
-
-
-                backendAvailable = true;
-
-            }
-
-
-
-
-        } catch(Exception e) {
-
+        } catch(Exception e){
 
             backendAvailable = false;
 
-
-
-            synchronized (trucks) {
-
-                trucks.clear();
-
-            }
-
-
-
             System.out.println(
-                    "Backend unavailable - trucks cleared"
+                    "HEARTBEAT LOST - STOP PRODUCING"
             );
 
         }
@@ -237,16 +156,14 @@ public class FleetManager {
 
 
 
-
-    private void registerToBackend() {
+    private synchronized void registerToBackend(){
 
 
 
         System.out.println(
-                "Registering simulator: "
+                "REGISTER SIMULATOR "
                         + simulatorId
         );
-
 
 
 
@@ -270,12 +187,11 @@ public class FleetManager {
 
 
 
-
-        if(assigned == null || assigned.isEmpty()) {
+        if(assigned == null || assigned.isEmpty()){
 
 
             throw new RuntimeException(
-                    "No trucks received"
+                    "No trucks assigned"
             );
 
         }
@@ -283,58 +199,42 @@ public class FleetManager {
 
 
 
-
-
-
-        assigned.forEach(truck -> {
+        for(Truck truck : assigned){
 
 
             Position destination =
                     new Position();
 
 
-
             truck.setRoute(
 
                     routeService.generateRoute(
-
                             truck.getPosition(),
-
                             destination
-
                     )
 
             );
-
-
-        });
-
-
-
-
-
-
-
-        synchronized (trucks) {
-
-
-            trucks.clear();
-
-
-            trucks.addAll(assigned);
-
 
         }
 
 
 
 
+        synchronized(trucks){
+
+
+            trucks.clear();
+
+            trucks.addAll(assigned);
+
+        }
+
+
+
 
         System.out.println(
-
-                "Simulator loaded trucks: "
+                "Loaded trucks: "
                         + trucks.size()
-
         );
 
 
@@ -342,46 +242,21 @@ public class FleetManager {
 
 
 
-
-
-
-
-
-    public void addTruck(Truck truck) {
-
-
-        synchronized (trucks) {
-
-            trucks.add(truck);
-
-        }
-
-    }
-
-
-
-
-
-
-
     public Truck getTruckById(String id) {
 
-
         synchronized (trucks) {
 
+            for (Truck truck : trucks) {
 
-            return trucks.stream()
+                if (truck.getId().equals(id)) {
+                    return truck;
+                }
 
-                    .filter(truck ->
-                            truck.getId().equals(id)
-                    )
-
-                    .findFirst()
-
-                    .orElse(null);
+            }
 
         }
 
+        return null;
     }
 
 
@@ -390,22 +265,9 @@ public class FleetManager {
 
 
 
-    public void removeTruck(String id) {
 
 
-        synchronized (trucks) {
 
-
-            trucks.removeIf(
-
-                    truck ->
-                            truck.getId().equals(id)
-
-            );
-
-        }
-
-    }
 
 
 

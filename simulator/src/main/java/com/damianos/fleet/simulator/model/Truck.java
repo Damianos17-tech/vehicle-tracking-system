@@ -144,7 +144,7 @@ public class Truck {
         lastUpdateTime = now;
 
         //routeIndex++;
-        routeIndex += 5;
+        routeIndex += 4;
 
         if (routeIndex >= route.size()) {
             reverseRoute();

@@ -15,7 +15,7 @@ public class TruckSimulator {
     private final FleetManager fleetManager;
     private final TruckConditionService truckConditionService;
 
-    private static final int UPDATE_PER_TICK = 20;
+    private static final int UPDATE_PER_TICK = 10;
 
     private int index = 0;
 
@@ -35,7 +35,7 @@ public class TruckSimulator {
 
 
     @Scheduled(
-            fixedRate = 500,
+            fixedRate = 250,
             initialDelay = 3000
     )
     public void tickScheduler() {
@@ -48,7 +48,16 @@ public class TruckSimulator {
 
     private void tick() {
 
+        if(!fleetManager.isBackendAvailable()) {
+
+            return;
+
+        }
+
         List<Truck> trucks = fleetManager.getTrucks();
+        System.out.println(
+                "SIMULATOR TRUCK COUNT = " + trucks.size()
+        );
 
         if (trucks.isEmpty()) {
             System.out.println("NO TRUCKS YET");

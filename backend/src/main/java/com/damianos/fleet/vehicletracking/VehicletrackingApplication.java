@@ -16,6 +16,10 @@ public class VehicletrackingApplication {
 
 	public static void main(String[] args)
 	{
+
+
+
+		System.out.println("DB URL = " + System.getenv("DB_URL"));
 		SpringApplication.run(VehicletrackingApplication.class, args);
 
 

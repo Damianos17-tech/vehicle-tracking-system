@@ -7,6 +7,7 @@ import com.damianos.fleet.vehicletracking.model.InfrastructureStats;
 import com.damianos.fleet.vehicletracking.model.Truck;
 import com.damianos.fleet.vehicletracking.repository.TruckRepository;
 import com.damianos.fleet.vehicletracking.service.FleetManager;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -129,12 +130,24 @@ public class TruckController {
 
 
     @PostMapping("/heartbeat")
-    public void heartbeat(
+    public ResponseEntity<Void> heartbeat(
             @RequestParam String simulatorId
-    ) {
+    ){
 
-        fleetAllocationService.heartbeat(simulatorId);
+        boolean active =
+                fleetAllocationService.heartbeat(simulatorId);
 
+
+        if(!active){
+
+            return ResponseEntity
+                    .status(410)
+                    .build();
+
+        }
+
+
+        return ResponseEntity.ok().build();
     }
 
 

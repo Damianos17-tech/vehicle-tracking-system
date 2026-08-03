@@ -8,13 +8,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
 
 
 @Service
@@ -30,9 +27,6 @@ public class FleetAllocationService {
 
     private final JpaTruckRepository jpaTruckRepository;
 
-    private final List<Truck> onlineTrucks = new ArrayList<>();
-
-
 
 
     /*
@@ -40,6 +34,7 @@ public class FleetAllocationService {
      */
     private final List<String> simulators =
             new ArrayList<>();
+
 
 
     /*
@@ -50,12 +45,18 @@ public class FleetAllocationService {
 
 
 
+
+
     public FleetAllocationService(
-            TruckRepository truckRepository, JpaTruckRepository jpaTruckRepository
+            TruckRepository truckRepository,
+            JpaTruckRepository jpaTruckRepository
     ) {
+
         this.truckRepository = truckRepository;
         this.jpaTruckRepository = jpaTruckRepository;
+
     }
+
 
 
 
@@ -64,15 +65,26 @@ public class FleetAllocationService {
     public synchronized List<Truck> assignTrucks(String simulatorId) {
 
 
+
         if (!truckRepository.isRepoInitialized()) {
-            System.out.println("Truck repository not initialized yet");
+
+            System.out.println(
+                    "Truck repository not initialized yet"
+            );
+
             return new ArrayList<>();
+
         }
+
+
+
 
         System.out.println(
                 "REGISTER SIMULATOR: "
                         + simulatorId
         );
+
+
 
 
 
@@ -95,14 +107,17 @@ public class FleetAllocationService {
 
 
             return List.of();
+
         }
 
 
 
-        /*
-            Dodajemy simulator
-        */
+
+
+
+
         simulators.add(simulatorId);
+
 
 
         heartbeats.put(
@@ -111,29 +126,68 @@ public class FleetAllocationService {
         );
 
 
-        List<Truck> allTrucks = new ArrayList<>(truckRepository.findAll());
-        allTrucks.sort(Comparator.comparing(Truck::getId));
-        List<Truck> assigned = new ArrayList<>();
 
-        for (Truck truck : allTrucks) {
-            if (!truck.isOnline()) {
+
+
+        List<Truck> allTrucks =
+                new ArrayList<>(truckRepository.findAll());
+
+
+
+        allTrucks.sort(
+                Comparator.comparing(Truck::getId)
+        );
+
+
+
+        List<Truck> assigned =
+                new ArrayList<>();
+
+
+
+
+
+
+        for(Truck truck : allTrucks){
+
+
+
+            if(!truck.isOnline()){
+
+
                 assigned.add(truck);
-                if (assigned.size() >= TRUCKS_PER_SIMULATOR) {
+
+
+
+                if(assigned.size() >= TRUCKS_PER_SIMULATOR){
+
                     break;
+
                 }
+
             }
+
         }
 
 
+
+
+
+
+
         if(assigned.isEmpty()){
+
 
             System.out.println(
                     "NO AVAILABLE TRUCKS"
             );
 
 
+
             simulators.remove(simulatorId);
+
             heartbeats.remove(simulatorId);
+
 
 
             return List.of();
@@ -144,27 +198,33 @@ public class FleetAllocationService {
 
 
 
-        assigned.forEach(truck -> {
+
+
+        for(Truck truck : assigned){
 
 
             truck.setOnline(true);
-            //System.out.println(truck.toString());
+
             truck.setSimulatorId(simulatorId);
 
 
+
             truckRepository.save(truck);
+
             jpaTruckRepository.save(truck);
 
-            //onlineTrucks.addAll(assigned);
-
-            //System.out.println("DEBUG AFTER SAVE " + truck.getId() + " ONLINE=" + truck.isOnline() + " SIM=" + truck.getSimulatorId());
-            //System.out.println(truck.toString());
 
 
-            System.out.println("ASSIGNED " + truck.getId());
+            System.out.println(
+                    "ASSIGNED "
+                            + truck.getId()
+            );
 
 
-        });
+        }
+
+
+
 
 
 
@@ -189,12 +249,14 @@ public class FleetAllocationService {
 
 
 
-    public void heartbeat(
-            String simulatorId
-    ){
+
+    /*
+        HEARTBEAT + LEASE VALIDATION
+     */
+    public boolean heartbeat(String simulatorId) {
 
 
-        if(simulators.contains(simulatorId)){
+        if(simulators.contains(simulatorId)) {
 
 
             heartbeats.put(
@@ -209,7 +271,19 @@ public class FleetAllocationService {
             );
 
 
+            return true;
+
         }
+
+
+
+        System.out.println(
+                "UNKNOWN SIMULATOR: "
+                        + simulatorId
+        );
+
+
+        return false;
 
     }
 
@@ -220,12 +294,18 @@ public class FleetAllocationService {
 
 
 
-    @Scheduled(fixedDelay = 100000)
+
+    /*
+        Sprawdzanie martwych simulatorów
+     */
+    @Scheduled(fixedDelay = 5000)
     public synchronized void checkHeartbeats(){
+
 
 
         long now =
                 System.currentTimeMillis();
+
 
 
 
@@ -244,7 +324,6 @@ public class FleetAllocationService {
 
                         dead.add(simulatorId);
 
-
                     }
 
 
@@ -255,7 +334,9 @@ public class FleetAllocationService {
 
 
 
-        dead.forEach(simulatorId -> {
+
+
+        for(String simulatorId : dead){
 
 
 
@@ -266,40 +347,59 @@ public class FleetAllocationService {
 
 
 
-            truckRepository.findAll()
-                    .stream()
-                    .filter(
-                            truck ->
-                                    simulatorId.equals(
-                                            truck.getSimulatorId()
-                                    )
-                    )
-                    .forEach(truck -> {
-
-
-                        truck.setOnline(false);
-
-                        truck.setSimulatorId(null);
-
-
-                        truckRepository.save(truck);
 
 
 
-                        System.out.println(
-                                "RELEASED "
-                                        + truck.getId()
-                        );
+            List<Truck> trucks =
+                    truckRepository.findAll();
 
-                    });
+
+
+
+
+
+            for(Truck truck : trucks){
+
+
+
+                if(simulatorId.equals(
+                        truck.getSimulatorId()
+                )){
+
+
+                    truck.setOnline(false);
+
+                    truck.setSimulatorId(null);
+
+
+
+                    truckRepository.save(truck);
+
+                    jpaTruckRepository.save(truck);
+
+
+
+                    System.out.println(
+                            "RELEASED "
+                                    + truck.getId()
+                    );
+
+
+                }
+
+
+            }
+
+
 
 
 
 
             simulators.remove(simulatorId);
 
-
             heartbeats.remove(simulatorId);
+
+
 
 
 
@@ -309,8 +409,8 @@ public class FleetAllocationService {
             );
 
 
+        }
 
-        });
 
 
     }
@@ -322,25 +422,21 @@ public class FleetAllocationService {
 
 
 
-    public synchronized long getOnlineTruckCount() {
+    public synchronized long getOnlineTruckCount(){
 
-        long count = truckRepository.findAll()
+
+
+        return truckRepository.findAll()
+
                 .stream()
+
                 .filter(Truck::isOnline)
+
                 .count();
 
-//        System.out.println("ONLINE COUNT = " + count);
-//
-//        truckRepository.findAll().stream()
-//                .filter(t -> t.getId().equals("TRUCK-001"))
-//                .findFirst()
-//                .ifPresent(t -> System.out.println(
-//                        "TRUCK-001 online=" + t.isOnline()
-//                                + " simulator=" + t.getSimulatorId()
-//                ));
 
-        return count;
     }
+
 
 
 
@@ -350,15 +446,25 @@ public class FleetAllocationService {
 
     public synchronized List<Truck> getOnlineTrucks(){
 
-        List<Truck> result = new ArrayList<>();
 
-        for (Truck truck : truckRepository.findAll()) {
+        List<Truck> result =
+                new ArrayList<>();
 
-            if (truck.isOnline()) {
+
+
+        for(Truck truck : truckRepository.findAll()){
+
+
+            if(truck.isOnline()){
+
                 result.add(truck);
+
             }
 
+
         }
+
+
 
         return result;
 
