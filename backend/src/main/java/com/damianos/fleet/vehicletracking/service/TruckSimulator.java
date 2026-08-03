@@ -33,13 +33,13 @@ public class TruckSimulator {
     @EventListener(ApplicationReadyEvent.class)
     public void start() {
         Executors.newSingleThreadScheduledExecutor()
-                .scheduleAtFixedRate(this::tick, 3000, 20, TimeUnit.MILLISECONDS);
+                .scheduleAtFixedRate(this::tick, 3000, 1000, TimeUnit.MILLISECONDS);
     }
 
 
 
 
-    private static final int UPDATE_PER_TICK = 3; // limit wysyłki
+    private static final int UPDATE_PER_TICK = 10; // limit wysyłki
     private int index = 0;
 
     private void tick() {

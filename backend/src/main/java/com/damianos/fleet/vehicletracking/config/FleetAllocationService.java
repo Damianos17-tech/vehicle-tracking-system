@@ -30,7 +30,7 @@ public class FleetAllocationService {
 
     private final JpaTruckRepository jpaTruckRepository;
 
-
+    private final List<Truck> onlineTrucks = new ArrayList<>();
 
 
 
@@ -155,6 +155,8 @@ public class FleetAllocationService {
             truckRepository.save(truck);
             jpaTruckRepository.save(truck);
 
+            //onlineTrucks.addAll(assigned);
+
             //System.out.println("DEBUG AFTER SAVE " + truck.getId() + " ONLINE=" + truck.isOnline() + " SIM=" + truck.getSimulatorId());
             //System.out.println(truck.toString());
 
@@ -229,6 +231,7 @@ public class FleetAllocationService {
 
         List<String> dead =
                 new ArrayList<>();
+
 
 
 
@@ -347,14 +350,17 @@ public class FleetAllocationService {
 
     public synchronized List<Truck> getOnlineTrucks(){
 
+        List<Truck> result = new ArrayList<>();
 
-        return new ArrayList<>(
-                truckRepository.findAll()
-        )
-                .stream()
-                .filter(Truck::isOnline)
-                .toList();
+        for (Truck truck : truckRepository.findAll()) {
 
+            if (truck.isOnline()) {
+                result.add(truck);
+            }
+
+        }
+
+        return result;
 
     }
 

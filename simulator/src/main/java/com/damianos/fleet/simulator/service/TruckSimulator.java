@@ -15,7 +15,7 @@ public class TruckSimulator {
     private final FleetManager fleetManager;
     private final TruckConditionService truckConditionService;
 
-    private static final int UPDATE_PER_TICK = 3;
+    private static final int UPDATE_PER_TICK = 20;
 
     private int index = 0;
 
@@ -35,7 +35,7 @@ public class TruckSimulator {
 
 
     @Scheduled(
-            fixedRate = 20,
+            fixedRate = 500,
             initialDelay = 3000
     )
     public void tickScheduler() {
