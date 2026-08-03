@@ -14,7 +14,10 @@ The project demonstrates practical skills in backend development, DevOps practic
 
 <img width="1918" height="921" alt="map-view-1007" src="https://github.com/user-attachments/assets/051a08d8-aad5-4dd3-9ba2-1af38b19ddc1" />
 
-<img width="1598" height="965" alt="panel-view-1007" src="https://github.com/user-attachments/assets/9fbbdd6a-3047-4d9f-a0ac-4aa78ae78a0f" />
+
+
+<img width="1884" height="795" alt="KafkaUI_Accident" src="https://github.com/user-attachments/assets/87431545-8fd6-4315-97d2-ffcdab6ed7cf" />
+
 
 ---
 
@@ -43,11 +46,12 @@ docker compose up --build
 | Frontend | 8080 |
 | Backend | 8090 |
 | PostgreSQL | 5432 |
+| KafkaUI | 7000 |
 | Kafka | 9092 |
 | Elasticsearch | 9200 |
 | Kibana | 5601 |
 | Grafana | 3000 |
-| OSRM | 5000 |
+| Open Source Routing Machine | 5000 |
 
 
 ---
