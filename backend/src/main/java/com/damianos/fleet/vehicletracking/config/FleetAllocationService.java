@@ -218,7 +218,7 @@ public class FleetAllocationService {
 
 
 
-    @Scheduled(fixedDelay = 10000)
+    @Scheduled(fixedDelay = 100000)
     public synchronized void checkHeartbeats(){
 
 
