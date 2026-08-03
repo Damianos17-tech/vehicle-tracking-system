@@ -68,7 +68,14 @@ public class TruckRepository {
 
     public FleetStats getStats() {
 
-        List<Truck> repoCopy = List.copyOf(trucks);
+		//List<Truck> repoCopy = List.copyOf(trucks);
+        List<Truck> repoCopy = new ArrayList<>();
+
+        for (Truck truck : trucks) {
+            if (truck.isOnline()) {
+                repoCopy.add(truck);
+            }
+        }
 
         long broken = repoCopy.stream()
                 .filter(t -> t.getStatus() == TruckState.Status.FAILURE)
@@ -92,7 +99,7 @@ public class TruckRepository {
 
         FleetStats stats = new FleetStats();
 
-        stats.setTotal(repoCopy.size());
+        stats.setTotal(trucks.size());
         stats.setBroken(broken);
         stats.setWarnings(warnings);
         stats.setStopped(stopped);

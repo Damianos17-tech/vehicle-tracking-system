@@ -1,0 +1,9 @@
+#Przewodnik komend
+1. Kafka — CPU zabiera najwięcej
+2. Elasticsearch + Kibana — RAM
+3. Backend — CPU przez websocket/Kafka/obróbkę trucków
+
+docker stats --no-stream --format table {{.Name}}t{{.CPUPerc}}t{{.MemUsage}} | sort -k2 -hr
+docker stats --no-stream --format table {{.Name}}t{{.MemUsage}}t{{.CPUPerc}} | sort -k2 -hr
+
+docker compose logs -f backend / simulator

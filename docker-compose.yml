@@ -40,6 +40,21 @@ services:
 
     ports:
       - "9092:9092"
+      
+      
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    container_name: kafka_ui
+
+    ports:
+      - "7000:8080"
+
+    environment:
+      KAFKA_CLUSTERS_0_NAME: vts-kafka
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+
+    depends_on:
+      - kafka
 
 
 
