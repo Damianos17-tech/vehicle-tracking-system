@@ -3,7 +3,21 @@
 2. Elasticsearch + Kibana — RAM
 3. Backend — CPU przez websocket/Kafka/obróbkę trucków
 
+
+#Sortowanie statystyk Dockera
 docker stats --no-stream --format table {{.Name}}t{{.CPUPerc}}t{{.MemUsage}} | sort -k2 -hr
 docker stats --no-stream --format table {{.Name}}t{{.MemUsage}}t{{.CPUPerc}} | sort -k2 -hr
 
+#Docker Logi kontenera o nazwie
 docker compose logs -f backend / simulator
+
+
+#Dodanie z reki drugiego symulatora, logi, usuwanie
+docker run -d --name simulator2 --network vts_default -e KAFKA_URL=kafka:9092 -e BACKEND_URL=http://backend:8090  -e SERVER_PORT=8061 vts-simulator
+docker logs -f simulator2
+docker stop simulator2
+docker rm -f simulator2
+
+
+
+
