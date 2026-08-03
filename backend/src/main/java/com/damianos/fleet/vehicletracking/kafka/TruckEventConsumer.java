@@ -39,6 +39,13 @@ public class TruckEventConsumer {
 
         Truck truck = truckRepository.findById(event.getTruckId());
 
+        if (!truck.isOnline()) {
+
+            //System.out.println("Ignoring event from offline truck: " + truck.getId());
+
+            return;
+        }
+
 
         if (truck == null) {
             System.out.println("Truck not found: " + event.getTruckId());

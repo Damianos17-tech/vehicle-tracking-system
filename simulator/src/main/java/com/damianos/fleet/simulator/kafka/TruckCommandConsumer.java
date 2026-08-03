@@ -29,8 +29,8 @@ public class TruckCommandConsumer {
 
 
     @KafkaListener(
-            topics = "truck-commands",
-            groupId = "simulator"
+            topics = "truck-commands"
+
     )
     public void consume(Command command) {
 

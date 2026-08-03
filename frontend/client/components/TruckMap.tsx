@@ -173,6 +173,54 @@ useEffect(() => {
 
     return () => clearTimeout(t);
   }, []);
+  
+  
+  useEffect(() => {
+
+  if (!map.current) return;
+
+
+  const activeTruckIds = new Set(
+    trucks.map(t => t.id)
+  );
+
+
+  Object.keys(markersRef.current).forEach(id => {
+
+
+    if (!activeTruckIds.has(id)) {
+
+
+      console.log(
+        "REMOVING MARKER:",
+        id
+      );
+
+
+      const marker = markersRef.current[id];
+
+
+      marker.remove();
+
+
+      delete markersRef.current[id];
+
+
+      lastTargets.current.delete(id);
+
+
+      if (selectedTruck === id) {
+        setSelectedTruck(null);
+        setDetailsOpen(false);
+      }
+
+    }
+
+
+  });
+
+
+}, [trucks]);
 
   // =========================
   // CREATE + UPDATE MARKERS

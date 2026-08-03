@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
@@ -99,12 +98,12 @@ public class FleetManager {
 
 
                     System.out.println(
-                            "Registration failed - retry in 10s"
+                            "Registration failed - retry in 20s"
                     );
 
 
                     try {
-                        Thread.sleep(10000);
+                        Thread.sleep(20000);
                     }
                     catch(Exception ignored){}
 
@@ -202,16 +201,15 @@ public class FleetManager {
         for(Truck truck : assigned){
 
 
+            Position start = new Position();
+
             Position destination =
-                    new Position();
+                    Position.generateDestination(start);
 
 
             truck.setRoute(
 
-                    routeService.generateRoute(
-                            truck.getPosition(),
-                            destination
-                    )
+                    routeService.generateRoute(start, destination)
 
             );
 
@@ -238,6 +236,18 @@ public class FleetManager {
         );
 
 
+        /*
+            DEBUG:
+            sprawdzamy jakie ID faktycznie ma simulator
+        */
+        trucks.forEach(truck ->
+                System.out.println(
+                        "SIMULATOR HAS: "
+                                + truck.getId()
+                )
+        );
+
+
     }
 
 
@@ -258,17 +268,6 @@ public class FleetManager {
 
         return null;
     }
-
-
-
-
-
-
-
-
-
-
-
 
 
 }

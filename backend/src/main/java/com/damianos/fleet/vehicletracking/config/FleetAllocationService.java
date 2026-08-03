@@ -4,6 +4,7 @@ package com.damianos.fleet.vehicletracking.config;
 import com.damianos.fleet.vehicletracking.model.Truck;
 import com.damianos.fleet.vehicletracking.repository.JpaTruckRepository;
 import com.damianos.fleet.vehicletracking.repository.TruckRepository;
+import jakarta.annotation.PostConstruct;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -20,7 +21,14 @@ public class FleetAllocationService {
 
     private static final int TRUCKS_PER_SIMULATOR = 100;
 
-    private static final long HEARTBEAT_TIMEOUT = 15000;
+
+    /*
+        Dajemy większy czas,
+        bo backend może się restartować,
+        a simulator nadal działa.
+     */
+    private static final long HEARTBEAT_TIMEOUT = 12000;
+
 
 
     private final TruckRepository truckRepository;
@@ -29,11 +37,13 @@ public class FleetAllocationService {
 
 
 
+
     /*
-        Lista aktywnych simulatorów
+        Aktywne simulatory w RAM backendu
      */
     private final List<String> simulators =
             new ArrayList<>();
+
 
 
 
@@ -42,6 +52,7 @@ public class FleetAllocationService {
      */
     private final Map<String, Long> heartbeats =
             new ConcurrentHashMap<>();
+
 
 
 
@@ -62,19 +73,139 @@ public class FleetAllocationService {
 
 
 
-    public synchronized List<Truck> assignTrucks(String simulatorId) {
+
+    /*
+        Odbudowa po restarcie backendu
+
+        DB:
+        truck.online=true
+        truck.simulatorId=xxx
+
+        RAM:
+        simulators=[]
+        heartbeats={}
+     */
+    @PostConstruct
+    public void initRestore() {
+
+
+        Thread.startVirtualThread(() -> {
+
+
+            try {
+
+                Thread.sleep(5000);
+
+            }
+            catch(Exception ignored){}
 
 
 
-        if (!truckRepository.isRepoInitialized()) {
+
+            restoreSimulators();
+
+
+
+        });
+
+
+    }
+
+
+
+
+
+
+
+    private synchronized void restoreSimulators() {
+
+
+        List<Truck> trucks =
+                truckRepository.findAll();
+
+
+
+        System.out.println(
+                "RESTORE CHECK - trucks in DB: "
+                        + trucks.size()
+        );
+
+
+
+
+
+        for(Truck truck : trucks) {
+
+
+            if(truck.isOnline()
+                    && truck.getSimulatorId() != null) {
+
+
+
+                String simulatorId =
+                        truck.getSimulatorId();
+
+
+
+
+                if(!simulators.contains(simulatorId)) {
+
+
+                    simulators.add(simulatorId);
+
+
+                    heartbeats.put(
+                            simulatorId,
+                            System.currentTimeMillis()
+                    );
+
+
+
+                    System.out.println(
+                            "RESTORED SIMULATOR FROM DB: "
+                                    + simulatorId
+                    );
+
+
+                }
+
+
+            }
+
+
+        }
+
+
+
+    }
+
+
+
+
+
+
+
+
+
+    public synchronized List<Truck> assignTrucks(
+            String simulatorId
+    ) {
+
+
+
+        if(!truckRepository.isRepoInitialized()) {
+
 
             System.out.println(
                     "Truck repository not initialized yet"
             );
 
+
             return new ArrayList<>();
 
         }
+
+
 
 
 
@@ -88,10 +219,14 @@ public class FleetAllocationService {
 
 
 
+
+
         /*
-            Simulator już istnieje
+            Simulator już istnieje.
+            Oddajemy jego stare trucki.
         */
-        if(simulators.contains(simulatorId)){
+        if(simulators.contains(simulatorId)) {
+
 
 
             heartbeats.put(
@@ -100,15 +235,45 @@ public class FleetAllocationService {
             );
 
 
+
+
+            List<Truck> existing =
+                    new ArrayList<>();
+
+
+
+
+            for(Truck truck : truckRepository.findAll()) {
+
+
+
+                if(simulatorId.equals(
+                        truck.getSimulatorId()
+                )) {
+
+
+                    existing.add(truck);
+
+                }
+
+
+            }
+
+
+
+
             System.out.println(
-                    "Simulator already registered: "
-                            + simulatorId
+                    "Simulator restored with trucks: "
+                            + existing.size()
             );
 
 
-            return List.of();
+
+            return existing;
+
 
         }
+
 
 
 
@@ -129,14 +294,23 @@ public class FleetAllocationService {
 
 
 
+
         List<Truck> allTrucks =
-                new ArrayList<>(truckRepository.findAll());
+                new ArrayList<>(
+                        truckRepository.findAll()
+                );
 
 
 
         allTrucks.sort(
-                Comparator.comparing(Truck::getId)
+                Comparator.comparing(
+                        Truck::getId
+                )
         );
+
+
+
+
 
 
 
@@ -147,25 +321,27 @@ public class FleetAllocationService {
 
 
 
-
-        for(Truck truck : allTrucks){
-
+        for(Truck truck : allTrucks) {
 
 
-            if(!truck.isOnline()){
+
+            if(!truck.isOnline()) {
 
 
                 assigned.add(truck);
 
 
 
-                if(assigned.size() >= TRUCKS_PER_SIMULATOR){
+                if(assigned.size()
+                        >= TRUCKS_PER_SIMULATOR) {
 
                     break;
 
                 }
 
+
             }
+
 
         }
 
@@ -175,7 +351,8 @@ public class FleetAllocationService {
 
 
 
-        if(assigned.isEmpty()){
+
+        if(assigned.isEmpty()) {
 
 
             System.out.println(
@@ -183,11 +360,9 @@ public class FleetAllocationService {
             );
 
 
-
             simulators.remove(simulatorId);
 
             heartbeats.remove(simulatorId);
-
 
 
             return List.of();
@@ -200,12 +375,18 @@ public class FleetAllocationService {
 
 
 
-        for(Truck truck : assigned){
+
+
+        for(Truck truck : assigned) {
+
 
 
             truck.setOnline(true);
 
-            truck.setSimulatorId(simulatorId);
+
+            truck.setSimulatorId(
+                    simulatorId
+            );
 
 
 
@@ -229,6 +410,7 @@ public class FleetAllocationService {
 
 
 
+
         System.out.println(
                 "Simulator "
                         + simulatorId
@@ -241,6 +423,7 @@ public class FleetAllocationService {
 
         return assigned;
 
+
     }
 
 
@@ -248,14 +431,12 @@ public class FleetAllocationService {
 
 
 
+    public synchronized boolean heartbeat(String simulatorId) {
 
 
     /*
-        HEARTBEAT + LEASE VALIDATION
-     */
-    public boolean heartbeat(String simulatorId) {
-
-
+        Simulator znany w RAM backendu
+    */
         if(simulators.contains(simulatorId)) {
 
 
@@ -277,13 +458,99 @@ public class FleetAllocationService {
 
 
 
+
+
+    /*
+        Backend był restartowany.
+        Sprawdzamy czy DB jeszcze zna simulatora.
+    */
+        for(Truck truck : truckRepository.findAll()) {
+
+
+            if(simulatorId.equals(
+                    truck.getSimulatorId()
+            )) {
+
+
+
+                simulators.add(simulatorId);
+
+
+                heartbeats.put(
+                        simulatorId,
+                        System.currentTimeMillis()
+                );
+
+
+
+                System.out.println(
+                        "RESTORED SIMULATOR DURING HEARTBEAT: "
+                                + simulatorId
+                );
+
+
+                return true;
+
+            }
+
+        }
+
+
+
+
+
+
+
+    /*
+        Simulator nieznany.
+        Przydzielamy mu ponownie flotę.
+    */
         System.out.println(
-                "UNKNOWN SIMULATOR: "
+                "UNKNOWN SIMULATOR - AUTO REGISTER: "
+                        + simulatorId
+        );
+
+
+
+        List<Truck> assigned =
+                assignTrucks(simulatorId);
+
+
+
+
+        if(!assigned.isEmpty()) {
+
+
+            heartbeats.put(
+                    simulatorId,
+                    System.currentTimeMillis()
+            );
+
+
+            System.out.println(
+                    "SIMULATOR REGISTERED FROM HEARTBEAT: "
+                            + simulatorId
+                            + " trucks="
+                            + assigned.size()
+            );
+
+
+            return true;
+
+
+        }
+
+
+
+
+        System.out.println(
+                "SIMULATOR REGISTRATION FAILED: "
                         + simulatorId
         );
 
 
         return false;
+
 
     }
 
@@ -295,17 +562,15 @@ public class FleetAllocationService {
 
 
 
-    /*
-        Sprawdzanie martwych simulatorów
-     */
-    @Scheduled(fixedDelay = 5000)
-    public synchronized void checkHeartbeats(){
 
+
+
+    @Scheduled(fixedDelay = 5000)
+    public synchronized void checkHeartbeats() {
 
 
         long now =
                 System.currentTimeMillis();
-
 
 
 
@@ -319,10 +584,11 @@ public class FleetAllocationService {
                 (simulatorId,last) -> {
 
 
-                    if(now - last > HEARTBEAT_TIMEOUT){
+                    if(now-last > HEARTBEAT_TIMEOUT) {
 
 
                         dead.add(simulatorId);
+
 
                     }
 
@@ -336,7 +602,7 @@ public class FleetAllocationService {
 
 
 
-        for(String simulatorId : dead){
+        for(String simulatorId : dead) {
 
 
 
@@ -350,21 +616,15 @@ public class FleetAllocationService {
 
 
 
-            List<Truck> trucks =
-                    truckRepository.findAll();
-
-
-
-
-
-
-            for(Truck truck : trucks){
+            for(Truck truck :
+                    truckRepository.findAll()) {
 
 
 
                 if(simulatorId.equals(
                         truck.getSimulatorId()
-                )){
+                )) {
+
 
 
                     truck.setOnline(false);
@@ -422,16 +682,13 @@ public class FleetAllocationService {
 
 
 
-    public synchronized long getOnlineTruckCount(){
 
+    public synchronized long getOnlineTruckCount() {
 
 
         return truckRepository.findAll()
-
                 .stream()
-
                 .filter(Truck::isOnline)
-
                 .count();
 
 
@@ -444,7 +701,7 @@ public class FleetAllocationService {
 
 
 
-    public synchronized List<Truck> getOnlineTrucks(){
+    public synchronized List<Truck> getOnlineTrucks() {
 
 
         List<Truck> result =
@@ -452,12 +709,16 @@ public class FleetAllocationService {
 
 
 
-        for(Truck truck : truckRepository.findAll()){
+        for(Truck truck :
+                truckRepository.findAll()) {
 
 
-            if(truck.isOnline()){
+
+            if(truck.isOnline()) {
+
 
                 result.add(truck);
+
 
             }
 
@@ -467,6 +728,7 @@ public class FleetAllocationService {
 
 
         return result;
+
 
     }
 

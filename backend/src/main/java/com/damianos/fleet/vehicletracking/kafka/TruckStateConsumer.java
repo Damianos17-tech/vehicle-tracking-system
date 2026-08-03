@@ -1,11 +1,14 @@
 package com.damianos.fleet.vehicletracking.kafka;
 
 import com.damianos.fleet.vehicletracking.model.Truck;
+import com.damianos.fleet.vehicletracking.model.TruckEvent;
 import com.damianos.fleet.vehicletracking.repository.TruckRepository;
 import com.damianos.fleet.vehicletracking.service.ElasticSearchService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 
 @Service
@@ -48,12 +51,21 @@ public class TruckStateConsumer {
             existing.setFuelLevel(truck.getFuelLevel());
             existing.setStatus(truck.getStatus());
 
+            existing.setTechnicalCondition(
+                    truck.getTechnicalCondition()
+            );
 
+            existing.setTotalDistanceKm(
+                    truck.getTotalDistanceKm()
+            );
 
-            if (truck.getRoute() == null) {
-                existing.setRoute(truck.getRoute());
-            }
+            existing.setDistanceSinceServiceKm(
+                    truck.getDistanceSinceServiceKm()
+            );
 
+            existing.setKmToService(
+                    truck.getKmToService()
+            );
 
 
             truckRepository.save(existing);

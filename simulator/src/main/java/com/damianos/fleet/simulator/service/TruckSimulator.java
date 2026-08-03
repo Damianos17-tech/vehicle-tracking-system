@@ -55,9 +55,9 @@ public class TruckSimulator {
         }
 
         List<Truck> trucks = fleetManager.getTrucks();
-        System.out.println(
-                "SIMULATOR TRUCK COUNT = " + trucks.size()
-        );
+//        System.out.println(
+//                "SIMULATOR TRUCK COUNT = " + trucks.size()
+//        );
 
         if (trucks.isEmpty()) {
             System.out.println("NO TRUCKS YET");
@@ -100,6 +100,8 @@ public class TruckSimulator {
                     truck,
                     truck.getLastDistanceKm()
             );
+
+
 
 
             truckConditionService.generateRandomFailures(truck);

@@ -68,7 +68,7 @@ public class FleetAutoRepairService {
 
                 //commandProducer.sendCommand(truck.getId(), "REPAIR");
                 //commandProducer.sendCommand(truck.getId(), "REFUEL");
-                commandProducer.sendCommand(truck.getId(), "SYSTEM_RECOVERY");
+                //commandProducer.sendCommand(truck.getId(), "SYSTEM_RECOVERY");
 
 
 
