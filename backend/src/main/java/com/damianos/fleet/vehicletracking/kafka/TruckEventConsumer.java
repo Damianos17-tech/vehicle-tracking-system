@@ -60,7 +60,7 @@ public class TruckEventConsumer {
         );
 
         // wysyłamy do ElasticSearch
-        //elasticSearchService.saveEvent(event);
+        elasticSearchService.saveEvent(event);
 
 
 
