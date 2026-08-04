@@ -10,6 +10,12 @@ The project demonstrates practical skills in backend development, DevOps practic
 
 ---
 
+## Demo
+
+[![Vehicle Tracking System Demo](https://img.youtube.com/vi/Sl_pJFMfSS4/maxresdefault.jpg)](https://www.youtube.com/watch?v=Sl_pJFMfSS4)
+
+---
+
 ## Screenshots
 
 <img width="1918" height="921" alt="map-view-1007" src="https://github.com/user-attachments/assets/051a08d8-aad5-4dd3-9ba2-1af38b19ddc1" />
