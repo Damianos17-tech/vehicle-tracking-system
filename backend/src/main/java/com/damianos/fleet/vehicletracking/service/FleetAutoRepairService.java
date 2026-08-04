@@ -58,13 +58,13 @@ public class FleetAutoRepairService {
 //                                " paused=" + truck.isPaused()
 //                );
 
-                truckConditionService.repair(truck);
-                truckConditionService.refuel(truck);
+                //truckConditionService.repair(truck);
+                //truckConditionService.refuel(truck);
                 // OPTIONAL: event log
 
-                eventPublisher.publish(truck, "SYSTEM_RECOVERY", "Automatic Fleet emergency recovery - vehicle repaired");
+               // eventPublisher.publish(truck, "SYSTEM_RECOVERY", "Automatic Fleet emergency recovery - vehicle repaired");
 
-                truckRepository.save(truck);
+               // truckRepository.save(truck);
 
                 //commandProducer.sendCommand(truck.getId(), "REPAIR");
                 //commandProducer.sendCommand(truck.getId(), "REFUEL");
